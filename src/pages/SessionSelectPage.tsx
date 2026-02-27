@@ -5,11 +5,10 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/componen
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Progress } from '@/components/ui/progress';
-import { User, Search, SortAsc, ShieldAlert, Zap } from 'lucide-react';
+import { User, Search, SortAsc, Zap } from 'lucide-react';
 import { chatService } from '@/lib/chat';
 import { cn } from '@/lib/utils';
-import type { SessionInfo } from '@/worker/types';
+import type { SessionInfo } from '../../worker/types';
 export function SessionSelectPage() {
   const navigate = useNavigate();
   const [sessions, setSessions] = useState<SessionInfo[]>([]);

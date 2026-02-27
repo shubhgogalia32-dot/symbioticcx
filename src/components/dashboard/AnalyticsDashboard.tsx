@@ -3,7 +3,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Brain, Heart, Zap, ShieldCheck } from 'lucide-react';
 import { chatService } from '@/lib/chat';
-import type { AnalyticsSummary } from '@/worker/types';
+import type { AnalyticsSummary } from '../../../worker/types';
 export function AnalyticsDashboard() {
   const [data, setData] = useState<AnalyticsSummary | null>(null);
   useEffect(() => {
@@ -44,8 +44,8 @@ export function AnalyticsDashboard() {
         <Card className="cockpit-panel bg-black/40 border-white/5 shadow-none">
           <CardHeader><CardTitle className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Contribution Matrix (Human vs AI)</CardTitle></CardHeader>
           <CardContent className="pb-6">
-            <div className="w-full h-[320px]">
-              <ResponsiveContainer width="100%" height="100%">
+            <div className="w-full h-[320px] relative overflow-hidden">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} debounce={100}>
                 <BarChart data={data.contributionData} layout="vertical" margin={{ left: 40, right: 20 }}>
                   <XAxis type="number" hide />
                   <YAxis dataKey="category" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#888', fontFamily: 'JetBrains Mono' }} />
@@ -61,8 +61,8 @@ export function AnalyticsDashboard() {
         <Card className="cockpit-panel bg-black/40 border-white/5 shadow-none">
           <CardHeader><CardTitle className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Live Sentiment Recovery Trend</CardTitle></CardHeader>
           <CardContent className="pb-6">
-            <div className="w-full h-[320px]">
-              <ResponsiveContainer width="100%" height="100%">
+            <div className="w-full h-[320px] relative overflow-hidden">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} debounce={100}>
                 <LineChart data={data.sentimentHistory}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
                   <XAxis dataKey="time" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#888', fontFamily: 'JetBrains Mono' }} />

@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { CheckCircle2, Flag } from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
 import { LiveTranscript } from './LiveTranscript';
 import { IntelligencePanel } from './IntelligencePanel';
 import { ControlDeck } from './ControlDeck';
@@ -17,6 +17,13 @@ const MOCK_CUSTOMER: CustomerProfile = {
   tier: 'Enterprise',
   ltv: 12450,
   lastPurchase: '2024-05-12'
+};
+const FALLBACK_ANALYSIS: AgentAnalysis = {
+  thought: "Signal processed with standard utility parameters.",
+  draft: "Thank you for reaching out. We are looking into your request immediately.",
+  sentiment_score: 50,
+  confidence_score: 100,
+  suggested_actions: ["Standard Greeting"]
 };
 export function AgentCockpit() {
   const { sessionId } = useParams<{ sessionId: string }>();
@@ -50,7 +57,7 @@ export function AgentCockpit() {
     });
     if (res.success) {
       toast.success("Session Transferred to Archive", {
-        description: `ROI Achievement: +${delta}% Empathy Delta | ${editCount} Human Context Layers Added`
+        description: `ROI Achievement: ${delta >= 0 ? '+' : ''}${delta}% Empathy Delta | ${editCount} Human Context Layers Added`
       });
       navigate('/');
     }
@@ -79,12 +86,17 @@ export function AgentCockpit() {
         const refresh = await chatService.getMessages();
         if (refresh.success && refresh.data?.messages) {
           const lastMsg = refresh.data.messages[refresh.data.messages.length - 1];
-          const analysis = JSON.parse(lastMsg.content) as AgentAnalysis;
-          setCurrentAnalysis(analysis);
-          setSentiment(analysis.sentiment_score);
-          if (messages.length === 0) setInitialSentiment(analysis.sentiment_score);
-          setConfidence(analysis.confidence_score);
-          if (analysis.sentiment_score < 40) toast.error("Critical Sentiment Drop Detected");
+          try {
+            const analysis = JSON.parse(lastMsg.content) as AgentAnalysis;
+            setCurrentAnalysis(analysis);
+            setSentiment(analysis.sentiment_score);
+            if (messages.length === 0) setInitialSentiment(analysis.sentiment_score);
+            setConfidence(analysis.confidence_score);
+            if (analysis.sentiment_score < 40) toast.error("Critical Sentiment Drop Detected");
+          } catch (e) {
+            console.warn("AI Packet Malformed, using recovery draft", e);
+            setCurrentAnalysis(FALLBACK_ANALYSIS);
+          }
         }
       }
     } finally { setIsProcessing(false); }

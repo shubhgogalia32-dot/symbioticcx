@@ -1,6 +1,6 @@
 import React from 'react';
 import { RadialBarChart, RadialBar, PolarAngleAxis, ResponsiveContainer } from 'recharts';
-import { User, ShieldCheck, TrendingUp, AlertTriangle, Target, Briefcase } from 'lucide-react';
+import { User, ShieldCheck, TrendingUp, AlertTriangle, Briefcase } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -21,7 +21,6 @@ export function IntelligencePanel({ profile, sentiment, confidence }: Intelligen
   const sentimentData = [{ value: sentiment, fill: getSentimentColor(sentiment) }];
   return (
     <div className="space-y-6 flex flex-col h-full overflow-y-auto pr-1">
-      {/* Profile Section */}
       <Card className="cockpit-panel border-none bg-black/40 shadow-none">
         <CardHeader className="pb-3 px-0">
           <CardTitle className="text-[10px] font-mono uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2">
@@ -31,7 +30,7 @@ export function IntelligencePanel({ profile, sentiment, confidence }: Intelligen
         <CardContent className="px-0 space-y-5">
           <div className="flex items-center gap-4">
             <div className="size-14 rounded-full bg-gradient-to-br from-primary/30 to-purple-500/30 flex items-center justify-center text-primary font-bold border border-white/10 text-xl shadow-inner shrink-0">
-              {profile.name[0]}
+              {profile.name?.[0] || 'U'}
             </div>
             <div className="space-y-1 min-w-0">
               <h3 className="font-semibold text-base leading-none truncate">{profile.name}</h3>
@@ -52,7 +51,6 @@ export function IntelligencePanel({ profile, sentiment, confidence }: Intelligen
           </div>
         </CardContent>
       </Card>
-      {/* Sentiment Section */}
       <Card className={cn(
         "cockpit-panel flex-1 border-none bg-black/40 shadow-none transition-all duration-500",
         isRedline ? "pulse-red" : ""
@@ -63,8 +61,8 @@ export function IntelligencePanel({ profile, sentiment, confidence }: Intelligen
           </CardTitle>
         </CardHeader>
         <CardContent className="px-0 flex flex-col items-center">
-          <div className="w-full h-[220px] min-h-[220px] relative mt-2">
-            <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+          <div className="w-full h-[220px] min-h-[220px] relative mt-2 overflow-hidden">
+            <ResponsiveContainer width="100%" height="100%" minWidth={0} debounce={100}>
               <RadialBarChart innerRadius="80%" outerRadius="100%" data={sentimentData} startAngle={225} endAngle={-45}>
                 <PolarAngleAxis type="number" domain={[0, 100]} angleAxisId={0} tick={false} />
                 <RadialBar dataKey="value" cornerRadius={20} background={{ fill: 'rgba(255,255,255,0.05)' }} />

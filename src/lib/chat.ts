@@ -1,9 +1,15 @@
-import type { Message, ChatState, ToolCall, WeatherResult, MCPResult, ErrorResult, SessionInfo, AnalyticsSummary, SessionMetrics } from '../../worker/types';
+import type { Message, ChatState, SessionInfo, AnalyticsSummary, SessionMetrics } from '../../worker/types';
 export interface ChatResponse {
   success: boolean;
   data?: ChatState;
   error?: string;
 }
+export const MODELS = [
+  { id: 'google-ai-studio/gemini-2.5-flash', name: 'Gemini 2.5 Flash' },
+  { id: 'openai/gpt-4o', name: 'GPT-4o' },
+  { id: 'meta-llama/llama-3.1-405b-instruct', name: 'Llama 3.1 405B' },
+  { id: 'anthropic/claude-3.5-sonnet', name: 'Claude 3.5 Sonnet' }
+];
 class ChatService {
   private sessionId: string;
   private baseUrl: string;
