@@ -61,8 +61,8 @@ export function IntelligencePanel({ profile, sentiment, confidence }: Intelligen
           </CardTitle>
         </CardHeader>
         <CardContent className="px-0 flex flex-col items-center">
-            <div style={{width: 192, height: 192}} className="mx-auto relative overflow-hidden mt-2 flex items-center justify-center mx-auto pt-4">
-              <RadialBarChart width={192} height={192} innerRadius="80%" outerRadius="100%" data={sentimentData} startAngle={225} endAngle={-45}>
+            <div style={{width: 220, height: 220}} className="mx-auto relative overflow-hidden mt-2 flex items-center justify-center mx-auto pt-4">
+              <RadialBarChart width={220} height={220} innerRadius="80%" outerRadius="100%" data={sentimentData} startAngle={225} endAngle={-45}>
                 <PolarAngleAxis type="number" domain={[0, 100]} angleAxisId={0} tick={false} />
                 <RadialBar dataKey="value" cornerRadius={20} background={{ fill: 'rgba(255,255,255,0.05)' }} />
               </RadialBarChart>

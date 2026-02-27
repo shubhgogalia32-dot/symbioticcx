@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Legend, PieChart, Pie, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, LineChart, Line, Legend, PieChart, Pie, Cell } from 'recharts';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Heart, Zap, ShieldCheck, DollarSign, TrendingUp } from 'lucide-react';
 import { chatService } from '@/lib/chat';
 import type { AnalyticsSummary } from '../../../worker/types';
 export function AnalyticsDashboard() {
   const [data, setData] = useState<AnalyticsSummary | null>(null);
-  const isMounted = useRef(true);
+  const isMounted = useRef(false);
   const [isMountedState, setIsMountedState] = useState(false);
   useEffect(() => {
     isMounted.current = true;
@@ -70,8 +70,8 @@ export function AnalyticsDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div style={{width: 192, height: 192}} className="relative flex items-center justify-center mx-auto pt-4">
-              <PieChart width={192} height={192}>
+            <div style={{width: 200, height: 200}} className="relative flex items-center justify-center mx-auto pt-4">
+              <PieChart width={200} height={200}>
                 <Pie data={safetyNetData} cx="50%" cy="50%" innerRadius={60} outerRadius={90} paddingAngle={8} dataKey="value" stroke="none">
                   {safetyNetData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
@@ -81,7 +81,7 @@ export function AnalyticsDashboard() {
                 <Legend verticalAlign="bottom" wrapperStyle={{ fontSize: '9px', textTransform: 'uppercase', fontFamily: 'JetBrains Mono', paddingTop: '12px' }} />
               </PieChart>
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mb-6">
-                <span className="text-xl font-mono font-bold">{Math.round((data.safetyNet.humanInterventions / Math.max(1, data.totalSessions)) * 100)}%</span>
+                <span className="text-xl font-mono font-bold">{Math.round((data.safetyNet.humanInterventions / Math.max(1, data.safetyNet.humanInterventions + data.safetyNet.autoApprovals)) * 100)}%</span>
                 <span className="text-[9px] font-mono uppercase text-muted-foreground tracking-tighter">Human Gate</span>
               </div>
             </div>
@@ -94,40 +94,38 @@ export function AnalyticsDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div style={{width: "100%", height: 300}}>
-              {!isMountedState ? <div className="w-full h-full bg-black/30 rounded-lg animate-pulse" /> : <ResponsiveContainer width="100%" height={300} minWidth={1} minHeight={1}>
-                <LineChart data={data.empathyTrend.slice(-10)} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                  <XAxis
-                    dataKey="session"
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fontSize: 8, fill: '#666', fontFamily: 'JetBrains Mono' }}
-                  />
-                  <YAxis hide domain={[0, 100]} />
-                  <Tooltip
-                    contentStyle={{ backgroundColor: '#09090b', border: '1px solid rgba(255,255,255,0.1)', fontSize: '10px', borderRadius: '8px' }}
-                  />
-                  <Legend verticalAlign="top" align="right" wrapperStyle={{ fontSize: '9px', textTransform: 'uppercase', fontFamily: 'JetBrains Mono', paddingBottom: '10px' }} />
-                  <Line
-                    type="monotone"
-                    dataKey="start"
-                    name="Inbound"
-                    stroke="#ef4444"
-                    strokeWidth={1}
-                    strokeDasharray="4 4"
-                    dot={false}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="end"
-                    name="Resolved"
-                    stroke="#10b981"
-                    strokeWidth={2}
-                    dot={{ r: 3, fill: '#10b981', strokeWidth: 0 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>}
+            <div style={{width: 500, height: 300}} className="mx-auto">
+              {!isMountedState ? <div className="w-full h-full bg-black/30 rounded-lg animate-pulse" /> : <LineChart width={500} height={300} data={data.empathyTrend.slice(-10)} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                <XAxis
+                  dataKey="session"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 8, fill: '#666', fontFamily: 'JetBrains Mono' }}
+                />
+                <YAxis hide domain={[0, 100]} />
+                <Tooltip
+                  contentStyle={{ backgroundColor: '#09090b', border: '1px solid rgba(255,255,255,0.1)', fontSize: '10px', borderRadius: '8px' }}
+                />
+                <Legend verticalAlign="top" align="right" wrapperStyle={{ fontSize: '9px', textTransform: 'uppercase', fontFamily: 'JetBrains Mono', paddingBottom: '10px' }} />
+                <Line
+                  type="monotone"
+                  dataKey="start"
+                  name="Inbound"
+                  stroke="#ef4444"
+                  strokeWidth={1}
+                  strokeDasharray="4 4"
+                  dot={false}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="end"
+                  name="Resolved"
+                  stroke="#10b981"
+                  strokeWidth={2}
+                  dot={{ r: 3, fill: '#10b981', strokeWidth: 0 }}
+                />
+              </LineChart>}
             </div>
           </CardContent>
         </Card>
