@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { CheckCircle2, RefreshCw, AlertTriangle, Zap } from 'lucide-react';
+import { CheckCircle2, RefreshCw, AlertTriangle, Zap, ShieldCheck } from 'lucide-react';
 import { LiveTranscript } from './LiveTranscript';
 import { IntelligencePanel } from './IntelligencePanel';
 import { ControlDeck } from './ControlDeck';
@@ -66,7 +66,7 @@ export function AgentCockpit() {
     });
     if (res.success) {
       toast.success("Strategic Resolution Authenticated", {
-        description: `ROI: ${delta >= 0 ? '+' : ''}${delta}% Empathy Delta | $${isCrisisResolved ? '2,000' : '0'} LTV Recovered`
+        description: `ROI: ${delta >= 0 ? '+' : ''}${delta}% Empathy Delta | ${isCrisisResolved ? '2,000' : '0'} LTV Recovered`
       });
       navigate('/analytics');
     }
@@ -84,7 +84,7 @@ export function AgentCockpit() {
           setConfidence(analysis.confidence_score);
           if (isInitial) setInitialSentiment(analysis.sentiment_score);
           if (analysis.sentiment_score < 40) {
-            toast.error("REDLINE PROTOCOL ACTIVE", { 
+            toast.error("REDLINE PROTOCOL ACTIVE", {
               description: "Logistics Failure Detected // Empathy Bypass Required",
               duration: 5000
             });
@@ -105,7 +105,6 @@ export function AgentCockpit() {
     setEditCount(0);
     setIsCrisisResolved(false);
     setCurrentAnalysis(null);
-    // Controlled sequence to prevent race conditions
     await simulateCustomerStep("Where is my order #CX-99? It's been an hour.", true);
     setTimeout(async () => {
       if (isMounted.current) {
@@ -132,36 +131,45 @@ export function AgentCockpit() {
       if (isMounted.current) setIsProcessing(false);
     }
   };
+  // Truncate session ID for mobile safety
+  const displayId = sessionId.length > 12 ? `${sessionId.slice(0, 8)}...` : sessionId;
   return (
     <AppLayout className="bg-[#09090b] text-white">
       <div className={cn(
-        "flex h-screen w-full transition-all duration-1000", 
+        "flex h-screen w-full transition-all duration-1000",
         sentiment < 40 ? "ring-[12px] ring-inset ring-red-500/20" : ""
       )}>
         <div className="flex-1 flex flex-col min-w-0 border-r border-white/10 relative">
-          <header className="h-14 border-b border-white/10 flex items-center justify-between px-6 bg-black/40 backdrop-blur-md z-10">
+          <header className="h-14 border-b border-white/10 flex items-center justify-between px-6 bg-black/40 backdrop-blur-md z-10 shrink-0">
             <div className="flex items-center gap-4">
               <h1 className="font-mono text-[10px] uppercase tracking-widest font-bold text-muted-foreground flex items-center gap-3">
                 <span className={cn(
-                  "size-2 rounded-full", 
+                  "size-2 rounded-full",
                   sentiment < 40 ? "bg-red-500 animate-ping" : "bg-primary animate-pulse"
                 )}></span>
-                SESSION: {sessionId.slice(0, 8)} // EM Δ: {sentiment - initialSentiment}%
+                SESSION: {displayId} // EM Δ: {sentiment - initialSentiment}%
               </h1>
+              <div className="hidden md:flex items-center gap-1.5 px-2 py-0.5 rounded-full border border-emerald-500/20 bg-emerald-500/5">
+                <ShieldCheck className="size-2.5 text-emerald-500" />
+                <span className="text-[8px] font-mono text-emerald-500 uppercase tracking-tighter">Secure Uplink</span>
+              </div>
             </div>
             <div className="flex items-center gap-2">
               <Button size="sm" variant="outline" className="h-8 font-mono text-[9px] uppercase border-amber-500/40 text-amber-500 hover:bg-amber-500/10" onClick={triggerDemoScenario} disabled={isProcessing}>
-                <AlertTriangle className="size-3 mr-2" /> Trigger Crisis
-              </Button>
-              <Button size="sm" variant="outline" className="h-8 font-mono text-[9px] uppercase bg-white/5 border-white/10" onClick={loadMessages}>
-                <RefreshCw className={cn("size-3 mr-2", isProcessing && "animate-spin")} />
+                <AlertTriangle className="size-3 mr-1 md:mr-2" /> 
+                <span className="hidden sm:inline">Trigger Crisis</span>
+                <span className="sm:hidden">Crisis</span>
               </Button>
               <Button size="sm" variant="outline" className="h-8 font-mono text-[9px] uppercase border-emerald-500/30 text-emerald-500 hover:bg-emerald-500/10" onClick={handleResolve}>
-                <CheckCircle2 className="size-3 mr-2" /> Resolve
+                <CheckCircle2 className="size-3 mr-1 md:mr-2" />
+                <span className="hidden sm:inline">Resolve</span>
+                <span className="sm:hidden">Exit</span>
               </Button>
             </div>
           </header>
-          <LiveTranscript messages={messages} />
+          <div className="flex-1 overflow-hidden flex flex-col">
+            <LiveTranscript messages={messages} />
+          </div>
           <ControlDeck
             analysis={currentAnalysis}
             onSend={handleSendMessage}
