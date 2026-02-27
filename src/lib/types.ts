@@ -15,15 +15,9 @@ export interface CustomerProfile {
   avatarUrl?: string;
 }
 export interface SessionMetrics {
-  initialSentiment: number;
-  finalSentiment: number;
-  humanEditsCount: number;
-  complexityScore: number;
   humanValueScore: number;
-  isChurnRisk?: boolean;
-  wasHumanEdited?: boolean;
-  isCrisisResolved?: boolean;
-  churnRecoveryLtv?: number;
+  responseTime: number;
+  sentimentTrend: number[];
 }
 export interface ExtendedMessage {
   id: string;
@@ -32,31 +26,4 @@ export interface ExtendedMessage {
   timestamp: number;
   analysis?: AgentAnalysis;
   isDraft?: boolean;
-  metadata?: {
-    empathyDelta: number;
-    humanEdited: boolean;
-  };
-}
-export interface SessionSummary {
-  sessionId: string;
-  customer: CustomerProfile;
-  lastMessage: string;
-  sentiment: number;
-  urgency: number;
-  aiConfidence: number;
-  isActive: boolean;
-}
-export interface AnalyticsData {
-  totalSessions: number;
-  aiAutomationRate: number;
-  avgEmpathyDelta: number;
-  humanValueScore: number;
-  churnRevenueSaved: number;
-  safetyNet: {
-    humanInterventions: number;
-    autoApprovals: number;
-  };
-  sentimentRecovery: { timestamp: string; score: number }[];
-  contributionByCategory: { category: string; human: number; ai: number }[];
-  empathyTrend: { session: string; start: number; end: number }[];
 }
