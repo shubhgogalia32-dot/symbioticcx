@@ -26,4 +26,25 @@ export interface ExtendedMessage {
   timestamp: number;
   analysis?: AgentAnalysis;
   isDraft?: boolean;
+  metadata?: {
+    empathyDelta: number;
+    humanEdited: boolean;
+  };
+}
+export interface SessionSummary {
+  sessionId: string;
+  customer: CustomerProfile;
+  lastMessage: string;
+  sentiment: number;
+  urgency: number;
+  aiConfidence: number;
+  isActive: boolean;
+}
+export interface AnalyticsData {
+  totalSessions: number;
+  aiAutomationRate: number;
+  avgEmpathyDelta: number;
+  humanValueScore: number;
+  sentimentRecovery: { timestamp: string; score: number }[];
+  contributionByCategory: { category: string; human: number; ai: number }[];
 }

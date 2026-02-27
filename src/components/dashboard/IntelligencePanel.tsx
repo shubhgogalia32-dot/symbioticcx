@@ -20,7 +20,7 @@ export function IntelligencePanel({ profile, sentiment, confidence }: Intelligen
   };
   const sentimentData = [{ value: sentiment, fill: getSentimentColor(sentiment) }];
   return (
-    <div className="space-y-6 flex flex-col h-full">
+    <div className="space-y-6 flex flex-col h-full overflow-y-auto pr-1">
       {/* Profile Section */}
       <Card className="cockpit-panel border-none bg-black/40 shadow-none">
         <CardHeader className="pb-3 px-0">
@@ -30,12 +30,12 @@ export function IntelligencePanel({ profile, sentiment, confidence }: Intelligen
         </CardHeader>
         <CardContent className="px-0 space-y-5">
           <div className="flex items-center gap-4">
-            <div className="size-14 rounded-full bg-gradient-to-br from-primary/30 to-purple-500/30 flex items-center justify-center text-primary font-bold border border-white/10 text-xl shadow-inner">
+            <div className="size-14 rounded-full bg-gradient-to-br from-primary/30 to-purple-500/30 flex items-center justify-center text-primary font-bold border border-white/10 text-xl shadow-inner shrink-0">
               {profile.name[0]}
             </div>
-            <div className="space-y-1">
-              <h3 className="font-semibold text-base leading-none">{profile.name}</h3>
-              <p className="text-[10px] font-mono text-muted-foreground uppercase">{profile.email}</p>
+            <div className="space-y-1 min-w-0">
+              <h3 className="font-semibold text-base leading-none truncate">{profile.name}</h3>
+              <p className="text-[10px] font-mono text-muted-foreground uppercase truncate">{profile.email}</p>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-2">
@@ -63,14 +63,14 @@ export function IntelligencePanel({ profile, sentiment, confidence }: Intelligen
           </CardTitle>
         </CardHeader>
         <CardContent className="px-0 flex flex-col items-center">
-          <div className="size-56 relative mt-2">
-            <ResponsiveContainer width="100%" height="100%">
+          <div className="w-full h-[220px] min-w-0 relative mt-2">
+            <ResponsiveContainer width="100%" height="100%" minWidth={0}>
               <RadialBarChart innerRadius="80%" outerRadius="100%" data={sentimentData} startAngle={225} endAngle={-45}>
                 <PolarAngleAxis type="number" domain={[0, 100]} angleAxisId={0} tick={false} />
                 <RadialBar dataKey="value" cornerRadius={20} background={{ fill: 'rgba(255,255,255,0.05)' }} />
               </RadialBarChart>
             </ResponsiveContainer>
-            <div className="absolute inset-0 flex flex-col items-center justify-center pt-2">
+            <div className="absolute inset-0 flex flex-col items-center justify-center pt-2 pointer-events-none">
               <span className={cn(
                 "text-5xl font-mono font-black tracking-tighter",
                 isRedline ? "text-red-500" : "text-foreground"
@@ -90,11 +90,8 @@ export function IntelligencePanel({ profile, sentiment, confidence }: Intelligen
                 </span>
                 <span className={confidence < 60 ? 'text-amber-500' : 'text-green-500'}>{confidence}%</span>
               </div>
-              <Progress 
-                value={confidence} 
-                className="h-1 bg-white/5" 
-                // @ts-ignore - shadcn progress colors usually handled via div children but here we use utility
-              />
+              {/* @ts-expect-error - shadcn progress colors handled via utility classes */}
+              <Progress value={confidence} className="h-1 bg-white/5" />
             </div>
             {isRedline && (
               <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 flex gap-3 animate-in zoom-in-95 duration-300">
@@ -103,17 +100,6 @@ export function IntelligencePanel({ profile, sentiment, confidence }: Intelligen
                   <p className="text-[11px] font-bold text-red-400 uppercase font-mono">Redline Detected</p>
                   <p className="text-[10px] text-red-300/80 leading-relaxed font-sans">
                     Customer is exhibiting high frustration. Auto-approval disabled. Manual empathy intervention required.
-                  </p>
-                </div>
-              </div>
-            )}
-            {!isRedline && sentiment > 70 && (
-              <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex gap-3">
-                <Target className="size-4 text-emerald-500 shrink-0 mt-0.5" />
-                <div className="space-y-1">
-                  <p className="text-[11px] font-bold text-emerald-400 uppercase font-mono">Positive Momentum</p>
-                  <p className="text-[10px] text-emerald-300/80 leading-relaxed font-sans">
-                    High engagement levels. Excellent opportunity for proactive upsell or loyalty reinforcement.
                   </p>
                 </div>
               </div>

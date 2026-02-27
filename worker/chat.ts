@@ -12,13 +12,32 @@ export class ChatHandler {
   }
   async processMessage(
     message: string,
-    conversationHistory: Message[]
+    conversationHistory: Message[],
+    onChunk?: (chunk: string) => void
   ): Promise<{
     content: string;
     toolCalls?: ToolCall[];
   }> {
     const messages = this.buildConversationMessages(message, conversationHistory);
-    // Centaur Workflow: Disable streaming to ensure valid JSON analysis for UI parsing
+    if (onChunk) {
+      const stream = await this.client.chat.completions.create({
+        model: this.model,
+        messages,
+        response_format: { type: "json_object" },
+        max_tokens: 1500,
+        temperature: 0.7,
+        stream: true
+      });
+      let fullContent = '';
+      for await (const chunk of stream) {
+        const content = chunk.choices[0]?.delta?.content || '';
+        if (content) {
+          fullContent += content;
+          onChunk(content);
+        }
+      }
+      return { content: fullContent };
+    }
     const completion = await this.client.chat.completions.create({
       model: this.model,
       messages,
