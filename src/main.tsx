@@ -15,6 +15,18 @@ import { SessionSelectPage } from '@/pages/SessionSelectPage'
 import { AgentCockpit } from '@/components/dashboard/AgentCockpit'
 import { AnalyticsPage } from '@/pages/AnalyticsPage'
 import { OnePagerPage } from '@/pages/OnePagerPage'
+
+// Suppress Recharts 0x0/zero width/height warnings
+const originalWarn = console.warn;
+console.warn = (...args) => {
+  if (args.length > 0 && typeof args[0] === 'string') {
+    const msg = args[0];
+    if (msg.includes('Recharts') && (msg.includes('zero') || msg.includes('0x0') || msg.includes('width/height'))) {
+      return;
+    }
+  }
+  originalWarn.apply(console, args);
+};
 const queryClient = new QueryClient();
 const router = createBrowserRouter([
   {
