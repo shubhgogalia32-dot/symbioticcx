@@ -37,6 +37,8 @@ export interface SessionMetrics {
   humanEditsCount: number;
   complexityScore: number;
   humanValueScore: number;
+  isChurnRisk?: boolean;
+  wasHumanEdited?: boolean;
 }
 export interface SessionInfo {
   id: string;
@@ -51,8 +53,14 @@ export interface AnalyticsSummary {
   totalHumanValue: number;
   avgEmpathyDelta: number;
   aiAutomationRate: number;
+  churnRevenueSaved: number;
+  safetyNet: {
+    humanInterventions: number;
+    autoApprovals: number;
+  };
   contributionData: { category: string; human: number; ai: number }[];
   sentimentHistory: { time: string; score: number }[];
+  empathyTrend: { session: string; start: number; end: number }[];
 }
 export interface Tool {
   name: string;

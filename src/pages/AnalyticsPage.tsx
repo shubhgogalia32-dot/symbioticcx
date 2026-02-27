@@ -3,71 +3,90 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { AnalyticsDashboard } from '@/components/dashboard/AnalyticsDashboard';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { AlertTriangle, TrendingUp } from 'lucide-react';
+import { AlertTriangle, TrendingUp, ShieldAlert } from 'lucide-react';
 export function AnalyticsPage() {
   return (
     <AppLayout className="bg-[#09090b] text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="py-8 md:py-10 lg:py-12 space-y-8">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">Strategic Command</h1>
-              <p className="text-muted-foreground font-mono text-xs uppercase tracking-widest mt-1">
-                Centaur Operations // Efficiency & Empathy Metrics
+        <div className="py-8 md:py-10 lg:py-12 space-y-10">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-white/5 pb-8">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <ShieldAlert className="size-6 text-primary" />
+                <h1 className="text-3xl font-bold tracking-tight">Executive ROI Engine</h1>
+              </div>
+              <p className="text-muted-foreground font-mono text-xs uppercase tracking-widest">
+                SymbioticCX Strategic Oversight // Human-in-the-Loop Performance
               </p>
             </div>
-            <div className="flex gap-2">
-              <Badge variant="outline" className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 px-3 py-1">
-                SYSTEM NOMINAL
+            <div className="flex items-center gap-3">
+              <Badge variant="outline" className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 px-3 py-1 font-mono text-[10px]">
+                ROI RATIO: 14.2x
               </Badge>
-              <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 px-3 py-1 font-mono">
-                UPTIME: 99.98%
+              <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 px-3 py-1 font-mono text-[10px]">
+                NODES: 50+ ACTIVE
               </Badge>
             </div>
           </div>
           <AnalyticsDashboard />
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <Card className="lg:col-span-2 cockpit-panel bg-black/40 border-white/5 shadow-none">
               <CardHeader>
                 <CardTitle className="text-xs font-mono uppercase tracking-widest text-muted-foreground flex items-center gap-2">
-                  <AlertTriangle className="size-4 text-amber-500" /> Critical Intervention Log
+                  <AlertTriangle className="size-4 text-amber-500" /> Revenue Recovery Log
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="flex items-center justify-between p-4 rounded-lg bg-white/5 border border-white/5 group hover:border-primary/30 transition-colors">
+                  {[
+                    { id: '7821', tier: 'Enterprise', impact: '$15,000', delta: '+42%', user: 'Rivera-01' },
+                    { id: '7944', tier: 'Enterprise', impact: '$15,000', delta: '+38%', user: 'Rivera-01' },
+                    { id: '8102', tier: 'Pro', impact: '$2,000', delta: '+55%', user: 'Kowalski-04' }
+                  ].map((log) => (
+                    <div key={log.id} className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/5 group hover:border-primary/30 transition-all duration-300">
                       <div className="flex items-center gap-4">
-                        <div className="size-10 rounded bg-red-500/20 flex items-center justify-center text-red-500 font-bold font-mono">
-                          {35 + i}%
+                        <div className="size-12 rounded bg-emerald-500/20 flex flex-col items-center justify-center text-emerald-500 font-bold font-mono">
+                          <span className="text-[8px] leading-none opacity-60">DELTA</span>
+                          <span className="text-sm">{log.delta}</span>
                         </div>
                         <div>
-                          <p className="text-sm font-medium">Session #782{i} - Escalation Prevented</p>
-                          <p className="text-[10px] font-mono text-muted-foreground uppercase">Agent: Rivera-01 // Empathy Delta: +42%</p>
+                          <p className="text-sm font-semibold">Critical Churn Prevention #{log.id}</p>
+                          <p className="text-[10px] font-mono text-muted-foreground uppercase">
+                            Tier: <span className="text-primary">{log.tier}</span> // Op: {log.user}
+                          </p>
                         </div>
                       </div>
-                      <Badge variant="outline" className="text-[9px] font-mono border-white/10 group-hover:border-primary/50">
-                        REVIEWED
-                      </Badge>
+                      <div className="text-right">
+                        <p className="text-sm font-bold text-white font-mono">{log.impact}</p>
+                        <p className="text-[9px] font-mono text-muted-foreground uppercase">LTV SAVED</p>
+                      </div>
                     </div>
                   ))}
                 </div>
               </CardContent>
             </Card>
-            <Card className="cockpit-panel bg-black/40 border-white/5 shadow-none">
-              <CardHeader>
-                <CardTitle className="text-xs font-mono uppercase tracking-widest text-muted-foreground flex items-center gap-2">
-                  <TrendingUp className="size-4 text-primary" /> Live Empathy Delta
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="flex flex-col items-center justify-center h-[240px] space-y-4">
-                <div className="text-6xl font-mono font-black text-primary">+28%</div>
-                <div className="text-center">
-                  <p className="text-[10px] font-mono uppercase tracking-tighter text-muted-foreground">Average Human Value Add</p>
-                  <p className="text-[10px] font-mono text-emerald-500/80 mt-1">↑ 4.2% vs Last 24h</p>
-                </div>
-              </CardContent>
-            </Card>
+            <div className="space-y-6">
+              <Card className="cockpit-panel bg-black/40 border-white/5 shadow-none">
+                <CardHeader>
+                  <CardTitle className="text-xs font-mono uppercase tracking-widest text-muted-foreground flex items-center gap-2">
+                    <TrendingUp className="size-4 text-primary" /> Strategic Delta
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="flex flex-col items-center justify-center py-8 space-y-4">
+                  <div className="text-6xl font-mono font-black text-primary tracking-tighter">+28%</div>
+                  <div className="text-center">
+                    <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Avg Human Value Add</p>
+                    <p className="text-[10px] font-mono text-emerald-500/80 mt-1">↑ 4.2% VS PREVIOUS CYCLE</p>
+                  </div>
+                </CardContent>
+              </Card>
+              <div className="p-6 rounded-2xl bg-primary/5 border border-primary/10">
+                <p className="text-[10px] font-mono text-primary uppercase tracking-[0.2em] mb-2 font-bold">System Status Note</p>
+                <p className="text-[11px] text-muted-foreground leading-relaxed italic">
+                  * ROI calculations based on realized churn prevention metrics. Although this project features high-scale AI capabilities, session throughput is subject to global AI resource quotas.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>

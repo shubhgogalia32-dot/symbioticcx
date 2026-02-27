@@ -54,8 +54,10 @@ class ChatService {
   async getAnalytics(): Promise<{ success: boolean; data?: AnalyticsSummary }> {
     try {
       const response = await fetch('/api/analytics');
+      if (!response.ok) throw new Error('API Error');
       return await response.json();
     } catch (error) {
+      console.error('Analytics Fetch Error:', error);
       return { success: false };
     }
   }
