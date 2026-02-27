@@ -1,5 +1,5 @@
 import React from 'react';
-import { ResponsiveContainer, RadialBarChart, RadialBar, PolarAngleAxis } from 'recharts';
+import { RadialBarChart, RadialBar, PolarAngleAxis } from 'recharts';
 import { User, ShieldCheck, TrendingUp, AlertCircle } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -49,18 +49,16 @@ export function IntelligencePanel({ profile, sentiment, confidence }: Intelligen
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col items-center">
-          <div className="size-48 relative">
-            <ResponsiveContainer width="100%" height="100%">
-              <RadialBarChart innerRadius="80%" outerRadius="100%" data={data} startAngle={180} endAngle={0}>
+            <div className="size-48 relative">
+              <RadialBarChart width={192} height={192} innerRadius="80%" outerRadius="100%" data={data} startAngle={180} endAngle={0}>
                 <PolarAngleAxis type="number" domain={[0, 100]} angleAxisId={0} tick={false} />
                 <RadialBar dataKey="value" cornerRadius={10} background fill={data[0].fill} />
               </RadialBarChart>
-            </ResponsiveContainer>
-            <div className="absolute inset-0 flex flex-col items-center justify-center pt-8">
-              <span className="text-4xl font-mono font-bold">{sentiment}%</span>
-              <span className="text-[10px] uppercase text-muted-foreground">Sentiment</span>
+              <div className="absolute inset-0 flex flex-col items-center justify-center pt-8">
+                <span className="text-4xl font-mono font-bold">{sentiment}%</span>
+                <span className="text-[10px] uppercase text-muted-foreground">Sentiment</span>
+              </div>
             </div>
-          </div>
           <div className="w-full space-y-4 mt-4">
             <div className="space-y-1.5">
               <div className="flex justify-between text-xs font-mono">
