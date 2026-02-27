@@ -1,5 +1,5 @@
 import React from 'react';
-import { RadialBarChart, RadialBar, PolarAngleAxis, ResponsiveContainer } from 'recharts';
+import { RadialBarChart, RadialBar, PolarAngleAxis } from 'recharts';
 import { User, ShieldCheck, TrendingUp, AlertTriangle, Briefcase } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -61,25 +61,23 @@ export function IntelligencePanel({ profile, sentiment, confidence }: Intelligen
           </CardTitle>
         </CardHeader>
         <CardContent className="px-0 flex flex-col items-center">
-          <div className="w-full h-[220px] min-h-[220px] relative mt-2 overflow-hidden">
-            <ResponsiveContainer width="100%" height="100%" minWidth={0} debounce={100}>
-              <RadialBarChart innerRadius="80%" outerRadius="100%" data={sentimentData} startAngle={225} endAngle={-45}>
+            <div className="w-[280px] h-[220px] mx-auto relative mt-2 overflow-hidden">
+              <RadialBarChart width={280} height={220} innerRadius="80%" outerRadius="100%" data={sentimentData} startAngle={225} endAngle={-45}>
                 <PolarAngleAxis type="number" domain={[0, 100]} angleAxisId={0} tick={false} />
                 <RadialBar dataKey="value" cornerRadius={20} background={{ fill: 'rgba(255,255,255,0.05)' }} />
               </RadialBarChart>
-            </ResponsiveContainer>
-            <div className="absolute inset-0 flex flex-col items-center justify-center pt-2 pointer-events-none">
-              <span className={cn(
-                "text-5xl font-mono font-black tracking-tighter",
-                isRedline ? "text-red-500" : "text-foreground"
-              )}>
-                {sentiment}
-              </span>
-              <span className="text-[9px] uppercase font-mono tracking-widest text-muted-foreground mt-1">
-                Sentiment Index
-              </span>
+              <div className="absolute inset-0 flex flex-col items-center justify-center pt-2 pointer-events-none">
+                <span className={cn(
+                  "text-5xl font-mono font-black tracking-tighter",
+                  isRedline ? "text-red-500" : "text-foreground"
+                )}>
+                  {sentiment}
+                </span>
+                <span className="text-[9px] uppercase font-mono tracking-widest text-muted-foreground mt-1">
+                  Sentiment Index
+                </span>
+              </div>
             </div>
-          </div>
           <div className="w-full space-y-5 mt-6">
             <div className="space-y-2">
               <div className="flex justify-between text-[10px] font-mono uppercase tracking-wider">
