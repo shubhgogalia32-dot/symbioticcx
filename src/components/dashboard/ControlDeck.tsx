@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Send, RotateCcw, ShieldAlert, Cpu, Sparkles, MessageSquareWarning } from 'lucide-react';
+import { Send, RotateCcw, ShieldAlert, Cpu, Sparkles, MessageSquareWarning, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
@@ -50,7 +50,7 @@ export function ControlDeck({ analysis, onSend, onReject, isProcessing }: Contro
                 {analysis.suggested_actions.map((action, i) => (
                   <button
                     key={i}
-                    onClick={() => handleTextChange(draft + " " + action)}
+                    onClick={() => handleTextChange(draft + (draft.endsWith(' ') ? '' : ' ') + action)}
                     className="text-[9px] font-mono uppercase px-2 py-0.5 rounded border border-white/10 bg-white/5 hover:bg-primary/20 hover:border-primary/50 transition-colors"
                   >
                     +{action}
@@ -69,13 +69,15 @@ export function ControlDeck({ analysis, onSend, onReject, isProcessing }: Contro
                 value={draft}
                 onChange={(e) => handleTextChange(e.target.value)}
                 placeholder="Synthesizing context..."
+                disabled={isProcessing}
                 className={cn(
                   "min-h-[120px] bg-white/5 border-white/10 focus:ring-primary/50 font-sans text-sm resize-none transition-all duration-300",
-                  isSentimentRedline && !hasEdited ? "border-red-500/40 bg-red-500/5" : ""
+                  isSentimentRedline && !hasEdited ? "border-red-500/40 bg-red-500/5" : "",
+                  isProcessing ? "opacity-50 cursor-not-allowed" : ""
                 )}
               />
               <div className="absolute top-2 right-2 flex gap-2">
-                <Badge variant="secondary" className="bg-black/40 text-[9px] font-mono">
+                <Badge variant="secondary" className="bg-black/40 text-[9px] font-mono border-white/5">
                   CONFIDENCE: {analysis.confidence_score}%
                 </Badge>
               </div>
@@ -97,14 +99,22 @@ export function ControlDeck({ analysis, onSend, onReject, isProcessing }: Contro
                 onClick={() => onSend(draft)}
                 disabled={isProcessing || !draft.trim() || isLocked}
               >
-                <Send className="size-3 mr-2" /> 
+                {isProcessing ? (
+                  <Loader2 className="size-3 mr-2 animate-spin" />
+                ) : (
+                  <Send className="size-3 mr-2" />
+                )}
                 {isSentimentRedline ? (hasEdited ? "Verify & Transmit" : "Edit Required") : "Approve & Transmit"}
               </Button>
             </div>
           </div>
         ) : (
           <div className="h-[200px] flex flex-col items-center justify-center border-2 border-dashed border-white/5 rounded-xl text-muted-foreground/40 space-y-3">
-             <div className={cn("size-8 rounded-full border-2 border-current border-t-transparent animate-spin", !isProcessing && "hidden")} />
+             {isProcessing ? (
+                <div className="size-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+             ) : (
+                <Cpu className="size-8 opacity-20" />
+             )}
              <p className="text-xs font-mono uppercase tracking-[0.3em]">
                {isProcessing ? "Analyzing Customer Intent..." : "Standing by for Incoming Link"}
              </p>

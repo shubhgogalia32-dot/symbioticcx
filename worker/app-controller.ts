@@ -45,7 +45,7 @@ export class AppController extends DurableObject<Env> {
       { name: 'Pro', ltv: 2000, prob: 0.5 },
       { name: 'Free', ltv: 0, prob: 0.3 }
     ];
-    for (let i = 0; i < 52; i++) {
+    for (let i = 0; i < 20; i++) {
       const sessionId = crypto.randomUUID();
       const tier = tiers[Math.floor(Math.random() * tiers.length)];
       const startSent = 20 + Math.random() * 50;
@@ -69,7 +69,6 @@ export class AppController extends DurableObject<Env> {
         status: 'resolved',
         metrics
       });
-      // Update global aggregates for seed
       this.globalAnalytics.totalSessions++;
       if (humanEdited) {
         this.globalAnalytics.safetyNet.humanInterventions++;
@@ -113,12 +112,17 @@ export class AppController extends DurableObject<Env> {
       session.status = 'resolved';
       session.metrics = metrics;
       const delta = metrics.finalSentiment - metrics.initialSentiment;
-      const count = Array.from(this.sessions.values()).filter(s => s.status === 'resolved').length;
-      this.globalAnalytics.avgEmpathyDelta = ((this.globalAnalytics.avgEmpathyDelta * (count - 1)) + delta) / count;
-      this.globalAnalytics.totalHumanValue += metrics.humanValueScore;
-      // Churn Revenue Calculation
+      const resolvedSessions = Array.from(this.sessions.values()).filter(s => s.status === 'resolved');
+      const count = resolvedSessions.length;
+      // Division safety check
+      if (count > 0) {
+        const prevAvg = this.globalAnalytics.avgEmpathyDelta || 0;
+        this.globalAnalytics.avgEmpathyDelta = ((prevAvg * (count - 1)) + delta) / count;
+      } else {
+        this.globalAnalytics.avgEmpathyDelta = delta;
+      }
+      this.globalAnalytics.totalHumanValue += (metrics.humanValueScore || 0);
       if (metrics.initialSentiment < 40 && delta > 15) {
-        // Assume Enterprise for high-impact recovery demo
         this.globalAnalytics.churnRevenueSaved += 15000;
       }
       if (metrics.wasHumanEdited) {
@@ -134,7 +138,6 @@ export class AppController extends DurableObject<Env> {
       if (this.globalAnalytics.empathyTrend.length > 30) this.globalAnalytics.empathyTrend.shift();
       const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       this.globalAnalytics.sentimentHistory.push({ time: timeStr, score: metrics.finalSentiment });
-      if (this.globalAnalytics.sentimentHistory.length > 20) this.globalAnalytics.sentimentHistory.shift();
       await this.persist();
       return true;
     }
@@ -167,11 +170,17 @@ export class AppController extends DurableObject<Env> {
     await this.ensureLoaded();
     const count = this.sessions.size;
     this.sessions.clear();
-    this.globalAnalytics.totalSessions = 0;
-    this.globalAnalytics.totalHumanValue = 0;
-    this.globalAnalytics.churnRevenueSaved = 0;
-    this.globalAnalytics.safetyNet = { humanInterventions: 0, autoApprovals: 0 };
-    this.globalAnalytics.empathyTrend = [];
+    this.globalAnalytics = {
+      totalSessions: 0,
+      totalHumanValue: 0,
+      avgEmpathyDelta: 0,
+      aiAutomationRate: 68,
+      churnRevenueSaved: 0,
+      safetyNet: { humanInterventions: 0, autoApprovals: 0 },
+      contributionData: this.globalAnalytics.contributionData,
+      sentimentHistory: [],
+      empathyTrend: []
+    };
     await this.persist();
     return count;
   }
