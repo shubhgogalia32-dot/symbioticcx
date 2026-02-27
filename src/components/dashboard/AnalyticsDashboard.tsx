@@ -7,6 +7,7 @@ import type { AnalyticsSummary } from '../../../worker/types';
 export function AnalyticsDashboard() {
   const [data, setData] = useState<AnalyticsSummary | null>(null);
   const isMounted = useRef(true);
+  const [isMountedState, setIsMountedState] = useState(false);
   useEffect(() => {
     isMounted.current = true;
     const fetchStats = async () => {
@@ -26,6 +27,7 @@ export function AnalyticsDashboard() {
       clearInterval(interval);
     };
   }, []);
+  useEffect(() => { setIsMountedState(true); }, []);
   if (!data) return (
     <div className="h-96 flex flex-col items-center justify-center font-mono text-xs text-muted-foreground gap-4">
       <div className="size-8 border-2 border-primary border-t-transparent animate-spin rounded-full" />
@@ -68,34 +70,36 @@ export function AnalyticsDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="w-full h-64 min-h-[250px] relative">
-              <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
-                <PieChart>
-                  <Pie
-                    data={safetyNetData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={90}
-                    paddingAngle={8}
-                    dataKey="value"
-                    stroke="none"
-                  >
-                    {safetyNetData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: '#09090b', border: '1px solid rgba(255,255,255,0.1)', fontSize: '10px', borderRadius: '8px' }}
-                    itemStyle={{ color: '#fff', textTransform: 'uppercase' }}
-                  />
-                  <Legend verticalAlign="bottom" wrapperStyle={{ fontSize: '9px', textTransform: 'uppercase', fontFamily: 'JetBrains Mono', paddingTop: '20px' }} />
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mb-10">
-                <span className="text-2xl font-mono font-bold">{Math.round((data.safetyNet.humanInterventions / Math.max(1, data.totalSessions)) * 100)}%</span>
-                <span className="text-[8px] font-mono uppercase text-muted-foreground tracking-tighter">Human Gate</span>
-              </div>
+            <div style={{width: "100%", height: 300}} className="relative">
+              {!isMountedState ? <div className="w-full h-full bg-black/30 rounded-lg animate-pulse flex items-center justify-center" /> : <>
+                <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
+                  <PieChart>
+                    <Pie
+                      data={safetyNetData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={90}
+                      paddingAngle={8}
+                      dataKey="value"
+                      stroke="none"
+                    >
+                      {safetyNetData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{ backgroundColor: '#09090b', border: '1px solid rgba(255,255,255,0.1)', fontSize: '10px', borderRadius: '8px' }}
+                      itemStyle={{ color: '#fff', textTransform: 'uppercase' }}
+                    />
+                    <Legend verticalAlign="bottom" wrapperStyle={{ fontSize: '9px', textTransform: 'uppercase', fontFamily: 'JetBrains Mono', paddingTop: '20px' }} />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mb-10">
+                  <span className="text-2xl font-mono font-bold">{Math.round((data.safetyNet.humanInterventions / Math.max(1, data.totalSessions)) * 100)}%</span>
+                  <span className="text-[8px] font-mono uppercase text-muted-foreground tracking-tighter">Human Gate</span>
+                </div>
+              </>}
             </div>
           </CardContent>
         </Card>
@@ -106,40 +110,40 @@ export function AnalyticsDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="w-full h-64 min-h-[250px]">
-              <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
+            <div style={{width: "100%", height: 300}}>
+              {!isMountedState ? <div className="w-full h-full bg-black/30 rounded-lg animate-pulse" /> : <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                 <LineChart data={data.empathyTrend.slice(-10)} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                  <XAxis 
-                    dataKey="session" 
-                    axisLine={false} 
-                    tickLine={false} 
-                    tick={{ fontSize: 8, fill: '#666', fontFamily: 'JetBrains Mono' }} 
+                  <XAxis
+                    dataKey="session"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fontSize: 8, fill: '#666', fontFamily: 'JetBrains Mono' }}
                   />
                   <YAxis hide domain={[0, 100]} />
-                  <Tooltip 
+                  <Tooltip
                     contentStyle={{ backgroundColor: '#09090b', border: '1px solid rgba(255,255,255,0.1)', fontSize: '10px', borderRadius: '8px' }}
                   />
                   <Legend verticalAlign="top" align="right" wrapperStyle={{ fontSize: '9px', textTransform: 'uppercase', fontFamily: 'JetBrains Mono', paddingBottom: '10px' }} />
-                  <Line 
-                    type="monotone" 
-                    dataKey="start" 
-                    name="Inbound" 
-                    stroke="#ef4444" 
-                    strokeWidth={1} 
-                    strokeDasharray="4 4" 
-                    dot={false} 
+                  <Line
+                    type="monotone"
+                    dataKey="start"
+                    name="Inbound"
+                    stroke="#ef4444"
+                    strokeWidth={1}
+                    strokeDasharray="4 4"
+                    dot={false}
                   />
-                  <Line 
-                    type="monotone" 
-                    dataKey="end" 
-                    name="Resolved" 
-                    stroke="#10b981" 
-                    strokeWidth={2} 
-                    dot={{ r: 3, fill: '#10b981', strokeWidth: 0 }} 
+                  <Line
+                    type="monotone"
+                    dataKey="end"
+                    name="Resolved"
+                    stroke="#10b981"
+                    strokeWidth={2}
+                    dot={{ r: 3, fill: '#10b981', strokeWidth: 0 }}
                   />
                 </LineChart>
-              </ResponsiveContainer>
+              </ResponsiveContainer>}
             </div>
           </CardContent>
         </Card>

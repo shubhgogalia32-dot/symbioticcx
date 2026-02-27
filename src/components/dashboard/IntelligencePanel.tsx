@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { RadialBarChart, RadialBar, PolarAngleAxis, ResponsiveContainer } from 'recharts';
 import { User, ShieldCheck, TrendingUp, AlertTriangle, Briefcase } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
@@ -12,6 +12,12 @@ interface IntelligencePanelProps {
   confidence: number;
 }
 export function IntelligencePanel({ profile, sentiment, confidence }: IntelligencePanelProps) {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const isRedline = sentiment < 40;
   const getSentimentColor = (val: number) => {
     if (val < 40) return '#ef4444'; // Red
@@ -61,24 +67,30 @@ export function IntelligencePanel({ profile, sentiment, confidence }: Intelligen
           </CardTitle>
         </CardHeader>
         <CardContent className="px-0 flex flex-col items-center">
-            <div className="w-full h-64 min-h-[250px] mx-auto relative overflow-hidden mt-2">
-              <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
-                <RadialBarChart innerRadius="80%" outerRadius="100%" data={sentimentData} startAngle={225} endAngle={-45}>
-                  <PolarAngleAxis type="number" domain={[0, 100]} angleAxisId={0} tick={false} />
-                  <RadialBar dataKey="value" cornerRadius={20} background={{ fill: 'rgba(255,255,255,0.05)' }} />
-                </RadialBarChart>
-              </ResponsiveContainer>
-              <div className="absolute inset-0 flex flex-col items-center justify-center pt-2 pointer-events-none">
-                <span className={cn(
-                  "text-5xl font-mono font-black tracking-tighter",
-                  isRedline ? "text-red-500" : "text-foreground"
-                )}>
-                  {sentiment}
-                </span>
-                <span className="text-[9px] uppercase font-mono tracking-widest text-muted-foreground mt-1">
-                  Sentiment Index
-                </span>
-              </div>
+            <div style={{width: "100%", height: 300}} className="mx-auto relative overflow-hidden mt-2">
+              {!isMounted ? (
+                <div className="w-full h-full bg-black/30 rounded-lg animate-pulse flex items-center justify-center" />
+              ) : (
+                <>
+                  <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
+                    <RadialBarChart innerRadius="80%" outerRadius="100%" data={sentimentData} startAngle={225} endAngle={-45}>
+                      <PolarAngleAxis type="number" domain={[0, 100]} angleAxisId={0} tick={false} />
+                      <RadialBar dataKey="value" cornerRadius={20} background={{ fill: 'rgba(255,255,255,0.05)' }} />
+                    </RadialBarChart>
+                  </ResponsiveContainer>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center pt-2 pointer-events-none">
+                    <span className={cn(
+                      "text-5xl font-mono font-black tracking-tighter",
+                      isRedline ? "text-red-500" : "text-foreground"
+                    )}>
+                      {sentiment}
+                    </span>
+                    <span className="text-[9px] uppercase font-mono tracking-widest text-muted-foreground mt-1">
+                      Sentiment Index
+                    </span>
+                  </div>
+                </>
+              )}
             </div>
           <div className="w-full space-y-5 mt-6">
             <div className="space-y-2">
