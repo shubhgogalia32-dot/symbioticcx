@@ -3,13 +3,16 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { AnalyticsDashboard } from '@/components/dashboard/AnalyticsDashboard';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { AlertTriangle, TrendingUp, ShieldAlert } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { AlertTriangle, TrendingUp, ShieldAlert, FileDown } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 export function AnalyticsPage() {
+  const navigate = useNavigate();
   return (
     <AppLayout className="bg-[#09090b] text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 print-container">
         <div className="py-8 md:py-10 lg:py-12 space-y-10">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-white/5 pb-8">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-white/5 pb-8 no-print">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
                 <ShieldAlert className="size-6 text-primary" />
@@ -26,6 +29,13 @@ export function AnalyticsPage() {
               <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 px-3 py-1 font-mono text-[10px]">
                 NODES: 50+ ACTIVE
               </Badge>
+              <Button 
+                size="sm" 
+                className="font-mono text-[10px] uppercase bg-primary text-white"
+                onClick={() => navigate('/onepager')}
+              >
+                <FileDown className="mr-2 size-3" /> Export Executive One-Pager
+              </Button>
             </div>
           </div>
           <AnalyticsDashboard />

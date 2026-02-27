@@ -14,6 +14,7 @@ import '@/index.css'
 import { SessionSelectPage } from '@/pages/SessionSelectPage'
 import { AgentCockpit } from '@/components/dashboard/AgentCockpit'
 import { AnalyticsPage } from '@/pages/AnalyticsPage'
+import { OnePagerPage } from '@/pages/OnePagerPage'
 const queryClient = new QueryClient();
 const router = createBrowserRouter([
   {
@@ -29,6 +30,11 @@ const router = createBrowserRouter([
   {
     path: "/analytics",
     element: <AnalyticsPage />,
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: "/onepager",
+    element: <OnePagerPage />,
     errorElement: <RouteErrorBoundary />,
   },
 ]);

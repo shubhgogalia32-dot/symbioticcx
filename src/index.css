@@ -23,7 +23,6 @@
     --input: 240 3.7% 15.9%;
     --ring: 240 4.9% 83.9%;
     --radius: 0.5rem;
-    /* SymbioticCX Custom Tokens */
     --sentiment-positive: 142 71% 45%;
     --sentiment-negative: 0 84% 60%;
     --sentiment-neutral: 217 91% 60%;
@@ -50,7 +49,46 @@ body {
   @apply bg-[#09090b] text-foreground antialiased selection:bg-primary/30;
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
 }
-/* Scrollbar Styling */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { @apply bg-transparent; }
 ::-webkit-scrollbar-thumb { @apply bg-white/10 rounded-full hover:bg-white/20 transition-colors; }
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  .print-container {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 20px !important;
+    background: white !important;
+    color: black !important;
+  }
+  .cockpit-panel, .glass-card {
+    background: white !important;
+    border: 1px solid #eee !important;
+    color: black !important;
+    box-shadow: none !important;
+  }
+  .text-muted-foreground {
+    color: #666 !important;
+  }
+  .bg-primary {
+    background-color: #3b82f6 !important;
+    -webkit-print-color-adjust: exact;
+  }
+  .recharts-responsive-container {
+    width: 100% !important;
+    height: 300px !important;
+  }
+  h1, h2, h3, p, span {
+    color: black !important;
+  }
+  .print-force-visible {
+    display: block !important;
+    opacity: 1 !important;
+  }
+}

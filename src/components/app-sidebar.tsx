@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { LayoutGrid, Cpu, BarChart3, Settings, ShieldAlert, LifeBuoy } from "lucide-react";
+import { LayoutGrid, Cpu, BarChart3, Settings, ShieldAlert, LifeBuoy, FileText } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -54,6 +54,14 @@ export function AppSidebar(): JSX.Element {
                 <Link to="/analytics" className="flex items-center gap-3">
                   <BarChart3 className="size-4" /> 
                   <span className="font-mono text-xs uppercase tracking-tight">Strategic Analytics</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild isActive={location.pathname === "/onepager"}>
+                <Link to="/onepager" className="flex items-center gap-3">
+                  <FileText className="size-4" />
+                  <span className="font-mono text-xs uppercase tracking-tight">Executive Report</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
