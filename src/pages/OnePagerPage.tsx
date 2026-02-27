@@ -3,16 +3,17 @@ import { ShieldAlert, FileText, Printer, TrendingUp, DollarSign, Heart, Zap, Che
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, Tooltip } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell } from 'recharts';
 import { chatService } from '@/lib/chat';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
+import type { AnalyticsSummary } from '../../worker/types';
 export function OnePagerPage() {
   const navigate = useNavigate();
-  const [stats, setStats] = useState<any>(null);
+  const [stats, setStats] = useState<AnalyticsSummary | null>(null);
   useEffect(() => {
     chatService.getAnalytics().then(res => {
-      if (res.success) setStats(res.data);
+      if (res.success && res.data) setStats(res.data);
     });
   }, []);
   const handlePrint = () => window.print();
@@ -22,6 +23,9 @@ export function OnePagerPage() {
     { category: 'Routing Speed', human: 10, ai: 90 },
     { category: 'Compliance', human: 5, ai: 95 },
   ];
+  const empathyDelta = stats?.avgEmpathyDelta ?? 28;
+  const churnSaved = stats?.churnRevenueSaved ?? 142000;
+  const totalSolved = stats?.totalSessions ?? 0;
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans print-container">
       {/* Action Bar - Hidden in Print */}
@@ -42,7 +46,7 @@ export function OnePagerPage() {
             </div>
             <div>
               <h1 className="text-2xl font-black tracking-tighter uppercase text-slate-900">SymbioticCX</h1>
-              <p className="text-[10px] font-mono text-slate-400 uppercase tracking-widest font-bold">Strategic ROI Engine // Confidental</p>
+              <p className="text-[10px] font-mono text-slate-400 uppercase tracking-widest font-bold">Strategic ROI Engine // Confidential</p>
             </div>
           </div>
           <div className="text-right">
@@ -64,21 +68,21 @@ export function OnePagerPage() {
           <Card className="border-slate-100 bg-slate-50/50 shadow-none">
             <CardContent className="p-6 space-y-2">
               <Heart className="size-5 text-emerald-500" />
-              <p className="text-4xl font-black text-slate-900">+{stats?.avgEmpathyDelta ? Math.round(stats.avgEmpathyDelta) : '28'}%</p>
+              <p className="text-4xl font-black text-slate-900">+{Math.round(empathyDelta)}%</p>
               <p className="text-[10px] font-mono uppercase text-slate-500 font-bold tracking-tighter">Avg Empathy Delta</p>
             </CardContent>
           </Card>
           <Card className="border-slate-100 bg-slate-50/50 shadow-none">
             <CardContent className="p-6 space-y-2">
               <DollarSign className="size-5 text-primary" />
-              <p className="text-4xl font-black text-slate-900">${stats?.churnRevenueSaved ? (stats.churnRevenueSaved / 1000).toFixed(0) : '142'}k</p>
+              <p className="text-4xl font-black text-slate-900">${(churnSaved / 1000).toFixed(0)}k</p>
               <p className="text-[10px] font-mono uppercase text-slate-500 font-bold tracking-tighter">Recovered LTV</p>
             </CardContent>
           </Card>
           <Card className="border-slate-100 bg-slate-50/50 shadow-none">
             <CardContent className="p-6 space-y-2">
               <Zap className="size-5 text-amber-500" />
-              <p className="text-4xl font-black text-slate-900">{stats?.totalSessions ? stats.totalSessions : '0'}</p>
+              <p className="text-4xl font-black text-slate-900">{totalSolved}</p>
               <p className="text-[10px] font-mono uppercase text-slate-500 font-bold tracking-tighter">Verified Solutions</p>
             </CardContent>
           </Card>
@@ -109,10 +113,10 @@ export function OnePagerPage() {
                   tick={{ fontSize: 10, fill: '#64748b', fontWeight: 'bold', fontFamily: 'Inter' }}
                 />
                 <Bar dataKey="human" stackId="a" radius={[0, 0, 0, 0]}>
-                  {mockContribution.map((_, i) => <Cell key={i} fill="#3b82f6" />)}
+                  {mockContribution.map((_, i) => <Cell key={`cell-human-${i}`} fill="#3b82f6" />)}
                 </Bar>
                 <Bar dataKey="ai" stackId="a" radius={[0, 4, 4, 0]}>
-                  {mockContribution.map((_, i) => <Cell key={i} fill="#e2e8f0" />)}
+                  {mockContribution.map((_, i) => <Cell key={`cell-ai-${i}`} fill="#e2e8f0" />)}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
