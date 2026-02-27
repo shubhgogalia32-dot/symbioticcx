@@ -70,36 +70,20 @@ export function AnalyticsDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div style={{width: "100%", height: 300}} className="relative">
-              {!isMountedState ? <div className="w-full h-full bg-black/30 rounded-lg animate-pulse flex items-center justify-center" /> : <>
-                <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
-                  <PieChart>
-                    <Pie
-                      data={safetyNetData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={60}
-                      outerRadius={90}
-                      paddingAngle={8}
-                      dataKey="value"
-                      stroke="none"
-                    >
-                      {safetyNetData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      contentStyle={{ backgroundColor: '#09090b', border: '1px solid rgba(255,255,255,0.1)', fontSize: '10px', borderRadius: '8px' }}
-                      itemStyle={{ color: '#fff', textTransform: 'uppercase' }}
-                    />
-                    <Legend verticalAlign="bottom" wrapperStyle={{ fontSize: '9px', textTransform: 'uppercase', fontFamily: 'JetBrains Mono', paddingTop: '20px' }} />
-                  </PieChart>
-                </ResponsiveContainer>
-                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mb-10">
-                  <span className="text-2xl font-mono font-bold">{Math.round((data.safetyNet.humanInterventions / Math.max(1, data.totalSessions)) * 100)}%</span>
-                  <span className="text-[8px] font-mono uppercase text-muted-foreground tracking-tighter">Human Gate</span>
-                </div>
-              </>}
+            <div style={{width: 192, height: 192}} className="relative flex items-center justify-center mx-auto pt-4">
+              <PieChart width={192} height={192}>
+                <Pie data={safetyNetData} cx="50%" cy="50%" innerRadius={60} outerRadius={90} paddingAngle={8} dataKey="value" stroke="none">
+                  {safetyNetData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip contentStyle={{ backgroundColor: '#09090b', border: '1px solid rgba(255,255,255,0.1)', fontSize: '10px', borderRadius: '8px' }} itemStyle={{ color: '#fff', textTransform: 'uppercase' }} />
+                <Legend verticalAlign="bottom" wrapperStyle={{ fontSize: '9px', textTransform: 'uppercase', fontFamily: 'JetBrains Mono', paddingTop: '12px' }} />
+              </PieChart>
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mb-6">
+                <span className="text-xl font-mono font-bold">{Math.round((data.safetyNet.humanInterventions / Math.max(1, data.totalSessions)) * 100)}%</span>
+                <span className="text-[9px] font-mono uppercase text-muted-foreground tracking-tighter">Human Gate</span>
+              </div>
             </div>
           </CardContent>
         </Card>
