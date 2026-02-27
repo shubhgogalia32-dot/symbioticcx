@@ -20,9 +20,11 @@ export function ControlDeck({ analysis, onSend, onReject, isProcessing }: Contro
       setHasEdited(false);
     }
   }, [analysis]);
-  const isSentimentRedline = (analysis?.sentiment_score ?? 100) < 40;
+  const sentimentScore = analysis?.sentiment_score ?? 100;
+  const isSentimentRedline = sentimentScore < 40;
   const isLogisticsCrisis = analysis?.thought.toLowerCase().includes('logistics') || analysis?.thought.toLowerCase().includes('cx-99');
   const isLocked = isSentimentRedline && !hasEdited;
+  const confidence = analysis?.confidence_score ?? 0;
   const handleTextChange = (val: string) => {
     setDraft(val);
     if (val !== analysis?.draft) {
@@ -34,8 +36,11 @@ export function ControlDeck({ analysis, onSend, onReject, isProcessing }: Contro
     if (action === "Full Refund") prefix = "I've authorized a full refund for Order #CX-99 immediately and added $50 credit to your account. ";
     if (action === "Manual Reroute") prefix = "I have manually rerouted a new courier from our secondary hub to ensure your meal arrives in the next 15 minutes. ";
     if (action === "Priority Delivery") prefix = "I've escalated this to our priority dispatch team. ";
-    setDraft(prefix + draft);
-    setHasEdited(true);
+    // Prevent duplicate prepending if the prefix is already there
+    if (prefix && !draft.includes(prefix)) {
+      setDraft(prefix + draft);
+      setHasEdited(true);
+    }
   };
   return (
     <div className="p-5 border-t border-white/10 bg-black/60 backdrop-blur-xl relative">
@@ -56,7 +61,7 @@ export function ControlDeck({ analysis, onSend, onReject, isProcessing }: Contro
                 )}
               </div>
               <div className="flex gap-2">
-                {analysis.suggested_actions.map((action, i) => (
+                {analysis.suggested_actions?.map((action, i) => (
                   <button
                     key={i}
                     onClick={() => applyAction(action)}
@@ -64,7 +69,7 @@ export function ControlDeck({ analysis, onSend, onReject, isProcessing }: Contro
                   >
                     <Zap className="size-2.5 text-amber-500" /> {action}
                   </button>
-                ))}
+                )) ?? null}
               </div>
             </div>
             {isLocked && (
@@ -86,8 +91,14 @@ export function ControlDeck({ analysis, onSend, onReject, isProcessing }: Contro
                 )}
               />
               <div className="absolute top-2 right-2 flex gap-2">
-                <Badge variant="secondary" className="bg-black/40 text-[9px] font-mono border-white/5 backdrop-blur-sm">
-                  CONFIDENCE: {analysis.confidence_score}%
+                <Badge 
+                  variant="secondary" 
+                  className={cn(
+                    "bg-black/40 text-[9px] font-mono border-white/5 backdrop-blur-sm",
+                    confidence < 60 ? "text-amber-500" : "text-emerald-500"
+                  )}
+                >
+                  CONFIDENCE: {confidence}%
                 </Badge>
               </div>
             </div>

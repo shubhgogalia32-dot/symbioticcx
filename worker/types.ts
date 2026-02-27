@@ -39,6 +39,8 @@ export interface SessionMetrics {
   humanValueScore: number;
   isChurnRisk?: boolean;
   wasHumanEdited?: boolean;
+  isCrisisResolved?: boolean;
+  churnRecoveryLtv?: number;
 }
 export interface SessionInfo {
   id: string;
