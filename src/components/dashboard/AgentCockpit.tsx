@@ -1,9 +1,11 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
+import { CheckCircle2, Flag } from 'lucide-react';
 import { LiveTranscript } from './LiveTranscript';
 import { IntelligencePanel } from './IntelligencePanel';
 import { ControlDeck } from './ControlDeck';
 import { AppLayout } from '@/components/layout/AppLayout';
+import { Button } from '@/components/ui/button';
 import { chatService } from '@/lib/chat';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -18,27 +20,44 @@ const MOCK_CUSTOMER: CustomerProfile = {
 };
 export function AgentCockpit() {
   const { sessionId } = useParams<{ sessionId: string }>();
+  const navigate = useNavigate();
   const [messages, setMessages] = useState<ExtendedMessage[]>([]);
   const [currentAnalysis, setCurrentAnalysis] = useState<AgentAnalysis | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [sentiment, setSentiment] = useState(72);
+  const [initialSentiment, setInitialSentiment] = useState(72);
   const [confidence, setConfidence] = useState(95);
-  // Synchronize chatService with the current URL session
+  const [editCount, setEditCount] = useState(0);
   useEffect(() => {
     if (sessionId) {
       chatService.switchSession(sessionId);
-      // Optionally load existing messages for this session
-      const loadHistory = async () => {
-        const response = await chatService.getMessages();
-        if (response.success && response.data?.messages) {
-          setMessages(response.data.messages as ExtendedMessage[]);
+      chatService.getMessages().then(res => {
+        if (res.success && res.data?.messages) {
+          setMessages(res.data.messages as ExtendedMessage[]);
         }
-      };
-      loadHistory();
+      });
     }
   }, [sessionId]);
+  const handleResolve = async () => {
+    const delta = sentiment - initialSentiment;
+    const humanValue = (editCount * 5) + (delta > 0 ? delta * 2 : 0);
+    const res = await chatService.resolveSession(sessionId || 'active', {
+      initialSentiment,
+      finalSentiment: sentiment,
+      humanEditsCount: editCount,
+      complexityScore: 85,
+      humanValueScore: Math.max(0, humanValue)
+    });
+    if (res.success) {
+      toast.success("Session Transferred to Archive", {
+        description: `ROI Achievement: +${delta}% Empathy Delta | ${editCount} Human Context Layers Added`
+      });
+      navigate('/');
+    }
+  };
   const handleSendMessage = async (content: string) => {
     if (!content.trim()) return;
+    setEditCount(prev => prev + 1);
     const newMessage: ExtendedMessage = {
       id: crypto.randomUUID(),
       role: 'assistant',
@@ -49,96 +68,49 @@ export function AgentCockpit() {
     setCurrentAnalysis(null);
     toast.success("Response verified and transmitted");
   };
-  const handleReject = () => {
-    setCurrentAnalysis(null);
-    toast.info("Draft discarded by human agent");
-  };
   const simulateCustomerMessage = useCallback(async (text: string) => {
     if (isProcessing) return;
     setIsProcessing(true);
-    const userMsg: ExtendedMessage = {
-      id: crypto.randomUUID(),
-      role: 'user',
-      content: text,
-      timestamp: Date.now()
-    };
+    const userMsg: ExtendedMessage = { id: crypto.randomUUID(), role: 'user', content: text, timestamp: Date.now() };
     setMessages(prev => [...prev, userMsg]);
     try {
       const response = await chatService.sendMessage(text);
       if (response.success) {
-        const refreshResponse = await chatService.getMessages();
-        if (refreshResponse.success && refreshResponse.data?.messages) {
-          const lastMsg = refreshResponse.data.messages[refreshResponse.data.messages.length - 1];
-          try {
-            const analysis = JSON.parse(lastMsg.content) as AgentAnalysis;
-            setCurrentAnalysis(analysis);
-            setSentiment(analysis.sentiment_score);
-            setConfidence(analysis.confidence_score);
-            if (analysis.sentiment_score < 40) {
-              toast.error("Critical Sentiment Drop Detected", {
-                description: "Emotional Override active. Human empathy required."
-              });
-            }
-          } catch (e) {
-            console.error("AI Protocol Error: Malformed JSON", lastMsg.content);
-            toast.error("AI Communication Error", { description: "Received non-structured response." });
-          }
+        const refresh = await chatService.getMessages();
+        if (refresh.success && refresh.data?.messages) {
+          const lastMsg = refresh.data.messages[refresh.data.messages.length - 1];
+          const analysis = JSON.parse(lastMsg.content) as AgentAnalysis;
+          setCurrentAnalysis(analysis);
+          setSentiment(analysis.sentiment_score);
+          if (messages.length === 0) setInitialSentiment(analysis.sentiment_score);
+          setConfidence(analysis.confidence_score);
+          if (analysis.sentiment_score < 40) toast.error("Critical Sentiment Drop Detected");
         }
       }
-    } catch (err) {
-      toast.error("Uplink Failure", { description: "Check connection to Intelligence Core." });
-    } finally {
-      setIsProcessing(false);
-    }
-  }, [isProcessing]);
+    } finally { setIsProcessing(false); }
+  }, [isProcessing, messages.length]);
   return (
     <AppLayout className="bg-[#09090b] text-white">
-      <div className={cn(
-        "flex h-screen w-full transition-all duration-700",
-        sentiment < 40 ? "ring-4 ring-inset ring-red-500/30" : ""
-      )}>
+      <div className={cn("flex h-screen w-full", sentiment < 40 ? "ring-4 ring-inset ring-red-500/30" : "")}>
         <div className="flex-1 flex flex-col min-w-0 border-r border-white/10 relative">
           <header className="h-14 border-b border-white/10 flex items-center justify-between px-6 bg-black/40 backdrop-blur-md z-10">
+            <h1 className="font-mono text-xs uppercase tracking-widest font-bold text-muted-foreground">
+              LINK: {sessionId || 'CENTAUR-01'} // EM Δ: {sentiment - initialSentiment}%
+            </h1>
             <div className="flex items-center gap-3">
-              <div className={cn(
-                "size-2 rounded-full animate-pulse",
-                isProcessing ? "bg-amber-500" : "bg-green-500"
-              )} />
-              <h1 className="font-mono text-xs uppercase tracking-widest font-bold text-muted-foreground">
-                <span className="text-foreground">Session:</span> {sessionId || MOCK_CUSTOMER.id} // {MOCK_CUSTOMER.tier}
-              </h1>
-            </div>
-            <div className="flex items-center gap-4">
-              <button
-                disabled={isProcessing}
-                onClick={() => simulateCustomerMessage("Where is my order? This is the third time I've reached out and no one has given me a straight answer. I am extremely frustrated!")}
-                className="text-[10px] font-mono bg-red-500/10 hover:bg-red-500/20 px-3 py-1 rounded border border-red-500/30 transition-all disabled:opacity-50"
-              >
-                Simulate Redline Event
-              </button>
-              <button
-                disabled={isProcessing}
-                onClick={() => simulateCustomerMessage("Hi, I'd like to upgrade my enterprise plan to include more seats.")}
-                className="text-[10px] font-mono bg-primary/10 hover:bg-primary/20 px-3 py-1 rounded border border-primary/30 transition-all disabled:opacity-50"
-              >
-                Simulate Positive Flow
+              <Button size="sm" variant="outline" className="h-8 font-mono text-[10px] uppercase" onClick={handleResolve}>
+                <CheckCircle2 className="size-3 mr-2 text-emerald-500" /> Resolve Session
+              </Button>
+              <button onClick={() => simulateCustomerMessage("I am frustrated with the delay.")} className="text-[10px] font-mono bg-red-500/10 px-3 py-1 rounded border border-red-500/30">
+                Trigger Escalation
               </button>
             </div>
           </header>
           <LiveTranscript messages={messages} />
-          <ControlDeck
-            analysis={currentAnalysis}
-            onSend={handleSendMessage}
-            onReject={handleReject}
-            isProcessing={isProcessing}
-          />
+          <ControlDeck analysis={currentAnalysis} onSend={handleSendMessage} onReject={() => setCurrentAnalysis(null)} isProcessing={isProcessing} />
         </div>
-        <aside className="w-80 bg-black/40 backdrop-blur-xl p-6 hidden lg:flex flex-col border-l border-white/5">
-          <IntelligencePanel
-            profile={MOCK_CUSTOMER}
-            sentiment={sentiment}
-            confidence={confidence}
-          />
+        <aside className="w-80 bg-black/40 p-6 hidden lg:flex flex-col border-l border-white/5">
+          <IntelligencePanel profile={MOCK_CUSTOMER} sentiment={sentiment} confidence={confidence} />
         </aside>
       </div>
     </AppLayout>
