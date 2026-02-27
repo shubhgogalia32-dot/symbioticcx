@@ -1,4 +1,5 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import { LiveTranscript } from './LiveTranscript';
 import { IntelligencePanel } from './IntelligencePanel';
 import { ControlDeck } from './ControlDeck';
@@ -16,11 +17,26 @@ const MOCK_CUSTOMER: CustomerProfile = {
   lastPurchase: '2024-05-12'
 };
 export function AgentCockpit() {
+  const { sessionId } = useParams<{ sessionId: string }>();
   const [messages, setMessages] = useState<ExtendedMessage[]>([]);
   const [currentAnalysis, setCurrentAnalysis] = useState<AgentAnalysis | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [sentiment, setSentiment] = useState(72);
   const [confidence, setConfidence] = useState(95);
+  // Synchronize chatService with the current URL session
+  useEffect(() => {
+    if (sessionId) {
+      chatService.switchSession(sessionId);
+      // Optionally load existing messages for this session
+      const loadHistory = async () => {
+        const response = await chatService.getMessages();
+        if (response.success && response.data?.messages) {
+          setMessages(response.data.messages as ExtendedMessage[]);
+        }
+      };
+      loadHistory();
+    }
+  }, [sessionId]);
   const handleSendMessage = async (content: string) => {
     if (!content.trim()) return;
     const newMessage: ExtendedMessage = {
@@ -50,7 +66,6 @@ export function AgentCockpit() {
     try {
       const response = await chatService.sendMessage(text);
       if (response.success) {
-        // Fetch latest messages from the agent state
         const refreshResponse = await chatService.getMessages();
         if (refreshResponse.success && refreshResponse.data?.messages) {
           const lastMsg = refreshResponse.data.messages[refreshResponse.data.messages.length - 1];
@@ -82,7 +97,6 @@ export function AgentCockpit() {
         "flex h-screen w-full transition-all duration-700",
         sentiment < 40 ? "ring-4 ring-inset ring-red-500/30" : ""
       )}>
-        {/* Main Cockpit Stage */}
         <div className="flex-1 flex flex-col min-w-0 border-r border-white/10 relative">
           <header className="h-14 border-b border-white/10 flex items-center justify-between px-6 bg-black/40 backdrop-blur-md z-10">
             <div className="flex items-center gap-3">
@@ -91,7 +105,7 @@ export function AgentCockpit() {
                 isProcessing ? "bg-amber-500" : "bg-green-500"
               )} />
               <h1 className="font-mono text-xs uppercase tracking-widest font-bold text-muted-foreground">
-                <span className="text-foreground">Session:</span> {MOCK_CUSTOMER.id} // {MOCK_CUSTOMER.tier}
+                <span className="text-foreground">Session:</span> {sessionId || MOCK_CUSTOMER.id} // {MOCK_CUSTOMER.tier}
               </h1>
             </div>
             <div className="flex items-center gap-4">
@@ -119,7 +133,6 @@ export function AgentCockpit() {
             isProcessing={isProcessing}
           />
         </div>
-        {/* Intelligence Sidebar */}
         <aside className="w-80 bg-black/40 backdrop-blur-xl p-6 hidden lg:flex flex-col border-l border-white/5">
           <IntelligencePanel
             profile={MOCK_CUSTOMER}

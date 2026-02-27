@@ -63,7 +63,7 @@ export function IntelligencePanel({ profile, sentiment, confidence }: Intelligen
           </CardTitle>
         </CardHeader>
         <CardContent className="px-0 flex flex-col items-center">
-          <div className="w-full h-[220px] min-w-0 relative mt-2">
+          <div className="w-full h-[220px] min-h-[220px] relative mt-2">
             <ResponsiveContainer width="100%" height="100%" minWidth={0}>
               <RadialBarChart innerRadius="80%" outerRadius="100%" data={sentimentData} startAngle={225} endAngle={-45}>
                 <PolarAngleAxis type="number" domain={[0, 100]} angleAxisId={0} tick={false} />
@@ -90,7 +90,6 @@ export function IntelligencePanel({ profile, sentiment, confidence }: Intelligen
                 </span>
                 <span className={confidence < 60 ? 'text-amber-500' : 'text-green-500'}>{confidence}%</span>
               </div>
-              {/* @ts-expect-error - shadcn progress colors handled via utility classes */}
               <Progress value={confidence} className="h-1 bg-white/5" />
             </div>
             {isRedline && (

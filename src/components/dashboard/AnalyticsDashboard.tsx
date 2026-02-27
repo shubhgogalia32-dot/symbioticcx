@@ -41,49 +41,53 @@ export function AnalyticsDashboard() {
         ))}
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="cockpit-panel bg-black/40 border-white/5 shadow-none h-[400px]">
+        <Card className="cockpit-panel bg-black/40 border-white/5 shadow-none min-h-[400px]">
           <CardHeader>
             <CardTitle className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Collaborative Contribution Matrix</CardTitle>
           </CardHeader>
-          <CardContent className="h-full pb-12">
-            <ResponsiveContainer width="100%" height="100%" minWidth={0}>
-              <BarChart data={contributionData} layout="vertical" margin={{ left: 40, right: 20 }}>
-                <XAxis type="number" hide />
-                <YAxis dataKey="category" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#888', fontFamily: 'JetBrains Mono' }} />
-                <Tooltip 
-                  cursor={{ fill: 'rgba(255,255,255,0.05)' }}
-                  contentStyle={{ backgroundColor: '#09090b', borderColor: 'rgba(255,255,255,0.1)', fontSize: '10px' }}
-                />
-                <Legend iconType="circle" wrapperStyle={{ fontSize: '10px', paddingTop: '20px' }} />
-                <Bar dataKey="human" name="Human Value" fill="#3b82f6" stackId="a" radius={[0, 0, 0, 0]} />
-                <Bar dataKey="ai" name="AI Shield" fill="rgba(255,255,255,0.1)" stackId="a" radius={[0, 4, 4, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+          <CardContent className="pb-6">
+            <div className="w-full h-[320px]">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+                <BarChart data={contributionData} layout="vertical" margin={{ left: 40, right: 20 }}>
+                  <XAxis type="number" hide />
+                  <YAxis dataKey="category" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#888', fontFamily: 'JetBrains Mono' }} />
+                  <Tooltip
+                    cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+                    contentStyle={{ backgroundColor: '#09090b', borderColor: 'rgba(255,255,255,0.1)', fontSize: '10px' }}
+                  />
+                  <Legend iconType="circle" wrapperStyle={{ fontSize: '10px', paddingTop: '20px' }} />
+                  <Bar dataKey="human" name="Human Value" fill="#3b82f6" stackId="a" radius={[0, 0, 0, 0]} />
+                  <Bar dataKey="ai" name="AI Shield" fill="rgba(255,255,255,0.1)" stackId="a" radius={[0, 4, 4, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </CardContent>
         </Card>
-        <Card className="cockpit-panel bg-black/40 border-white/5 shadow-none h-[400px]">
+        <Card className="cockpit-panel bg-black/40 border-white/5 shadow-none min-h-[400px]">
           <CardHeader>
             <CardTitle className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Aggregate Sentiment Recovery</CardTitle>
           </CardHeader>
-          <CardContent className="h-full pb-12">
-            <ResponsiveContainer width="100%" height="100%" minWidth={0}>
-              <LineChart data={recoveryData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                <XAxis dataKey="time" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#888', fontFamily: 'JetBrains Mono' }} />
-                <YAxis hide domain={[0, 100]} />
-                <Tooltip 
-                  contentStyle={{ backgroundColor: '#09090b', borderColor: 'rgba(255,255,255,0.1)', fontSize: '10px' }}
-                />
-                <Line 
-                  type="monotone" 
-                  dataKey="score" 
-                  stroke="#10b981" 
-                  strokeWidth={2} 
-                  dot={{ r: 4, fill: '#10b981', strokeWidth: 0 }}
-                  activeDot={{ r: 6, strokeWidth: 0 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
+          <CardContent className="pb-6">
+            <div className="w-full h-[320px]">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+                <LineChart data={recoveryData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                  <XAxis dataKey="time" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#888', fontFamily: 'JetBrains Mono' }} />
+                  <YAxis hide domain={[0, 100]} />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: '#09090b', borderColor: 'rgba(255,255,255,0.1)', fontSize: '10px' }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="score"
+                    stroke="#10b981"
+                    strokeWidth={2}
+                    dot={{ r: 4, fill: '#10b981', strokeWidth: 0 }}
+                    activeDot={{ r: 6, strokeWidth: 0 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
           </CardContent>
         </Card>
       </div>
