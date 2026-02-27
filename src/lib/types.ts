@@ -15,11 +15,15 @@ export interface CustomerProfile {
   avatarUrl?: string;
 }
 export interface SessionMetrics {
+  initialSentiment: number;
+  finalSentiment: number;
+  humanEditsCount: number;
+  complexityScore: number;
   humanValueScore: number;
-  responseTime: number;
-  sentimentTrend: number[];
   isChurnRisk?: boolean;
   wasHumanEdited?: boolean;
+  isCrisisResolved?: boolean;
+  churnRecoveryLtv?: number;
 }
 export interface ExtendedMessage {
   id: string;

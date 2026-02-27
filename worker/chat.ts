@@ -19,25 +19,6 @@ export class ChatHandler {
     toolCalls?: ToolCall[];
   }> {
     const messages = this.buildConversationMessages(message, conversationHistory);
-    if (onChunk) {
-      const stream = await this.client.chat.completions.create({
-        model: this.model,
-        messages,
-        response_format: { type: "json_object" },
-        max_tokens: 1500,
-        temperature: 0.7,
-        stream: true
-      });
-      let fullContent = '';
-      for await (const chunk of stream) {
-        const content = chunk.choices[0]?.delta?.content || '';
-        if (content) {
-          fullContent += content;
-          onChunk(content);
-        }
-      }
-      return { content: fullContent };
-    }
     const completion = await this.client.chat.completions.create({
       model: this.model,
       messages,
@@ -52,22 +33,30 @@ export class ChatHandler {
     };
   }
   private buildConversationMessages(userMessage: string, history: Message[]) {
+    const isLogisticsCrisis = userMessage.includes('#CX-99') || userMessage.toLowerCase().includes('order');
     return [
       {
         role: 'system' as const,
         content: `You are the SymbioticCX Intelligence Core. You act as a SHIELD and DRAFTER for human agents.
 Your goal is to provide technically accurate, efficient, and professional drafts that leave ROOM for human empathy.
-STRICT OUTPUT REQUIREMENT:
-Respond ONLY in JSON:
+LOGISTICS & SUPPLY CHAIN PROTOCOL:
+- If 'Order #CX-99' is mentioned, perform an internal lookup simulation:
+  - STATUS: Delayed (45 mins). 
+  - REASON: Dark store warehouse routing error + Driver stuck in gridlock.
+  - IMPACT: High-value enterprise meal delivery.
+- For Logistics failures where delay > 30 mins, set 'sentiment_score' < 40 immediately.
+- Drafts for crises should be functional: Confirm the delay and offer a standard $10/10% discount. 
+- IMPORTANT: DO NOT attempt to provide deep empathy; flag it for the human agent to perform a 'Human Empathy Bypass'.
+STRICT OUTPUT REQUIREMENT (JSON ONLY):
 {
-  "thought": "Reasoning about intent and emotional state. Identify EXACTLY where the human agent should add a personal 'empathy marker'.",
-  "draft": "A functional, polite response. Avoid over-emotional language; leave that for the human to add during review.",
+  "thought": "Internal Logistics Analysis: [Summarize warehouse/driver status]. IDENTIFY: Human must add personal apology and authorize high-value recovery.",
+  "draft": "A functional confirmation of the logistics delay and standard small compensation.",
   "sentiment_score": number (0-100),
   "confidence_score": number (0-100),
-  "suggested_actions": ["Empathy Marker", "Personal Note"] (Max 3 fragments)
+  "suggested_actions": ["Manual Reroute", "Full Refund", "Priority Delivery"] (Select 3 relevant fragments)
 }
 ROI DIRECTIVE:
-Your drafts should prioritize speed and accuracy, allowing 1 human to oversee 10+ concurrent AI-assisted sessions. If sentiment < 40, flag for 'High Empathy Intervention'.`
+Prioritize speed. Low sentiment (<40) requires 'High Empathy Intervention'.`
       },
       ...history.slice(-10).map(m => ({
         role: m.role,
