@@ -1,7 +1,7 @@
 # Cloudflare Workers AI Chat Agent
 
 [![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=${repositoryUrl})
-[cloudflarebutton]
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/shubhgogalia32-dot/symbioticcx)
 
 A production-ready, full-stack AI chat application built on Cloudflare Workers. Features persistent conversations using Durable Objects, streaming AI responses via Cloudflare AI Gateway, tool calling (weather, web search), multi-session management, and a modern React UI.
 
@@ -82,7 +82,7 @@ bun run deploy
 
 This builds the frontend assets, bundles the worker, and deploys everything.
 
-[cloudflarebutton]
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/shubhgogalia32-dot/symbioticcx)
 
 **Post-Deployment**:
 - Configure `wrangler.jsonc` vars in Cloudflare dashboard (Workers > Your Worker > Settings > Variables).
