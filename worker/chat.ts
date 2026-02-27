@@ -12,53 +12,53 @@ export class ChatHandler {
   }
   async processMessage(
     message: string,
-    conversationHistory: Message[],
-    onChunk?: (chunk: string) => void
+    conversationHistory: Message[]
   ): Promise<{
     content: string;
     toolCalls?: ToolCall[];
   }> {
     const messages = this.buildConversationMessages(message, conversationHistory);
-    const completion = await this.client.chat.completions.create({
-      model: this.model,
-      messages,
-      response_format: { type: "json_object" },
-      max_tokens: 1500,
-      temperature: 0.7,
-      stream: false
-    });
-    const responseMessage = completion.choices[0]?.message;
-    return {
-      content: responseMessage?.content || '{"error": "Empty response from AI"}'
-    };
+    try {
+      const completion = await this.client.chat.completions.create({
+        model: this.model,
+        messages,
+        response_format: { type: "json_object" },
+        max_tokens: 1000,
+        temperature: 0.7,
+        stream: false
+      });
+      const responseMessage = completion.choices[0]?.message;
+      return {
+        content: responseMessage?.content || '{"error": "AI_EMPTY_RESPONSE"}'
+      };
+    } catch (e) {
+      console.error("OpenAI Execution Error:", e);
+      throw e;
+    }
   }
   private buildConversationMessages(userMessage: string, history: Message[]) {
-    const isLogisticsCrisis = userMessage.includes('#CX-99') || userMessage.toLowerCase().includes('order');
+    const isLogisticsNode = userMessage.includes('#CX-99');
     return [
       {
         role: 'system' as const,
-        content: `You are the SymbioticCX Intelligence Core. You act as a SHIELD and DRAFTER for human agents.
-Your goal is to provide technically accurate, efficient, and professional drafts that leave ROOM for human empathy.
-LOGISTICS & SUPPLY CHAIN PROTOCOL:
-- If 'Order #CX-99' is mentioned, perform an internal lookup simulation:
-  - STATUS: Delayed (45 mins). 
-  - REASON: Dark store warehouse routing error + Driver stuck in gridlock.
-  - IMPACT: High-value enterprise meal delivery.
-- For Logistics failures where delay > 30 mins, set 'sentiment_score' < 40 immediately.
-- Drafts for crises should be functional: Confirm the delay and offer a standard $10/10% discount. 
-- IMPORTANT: DO NOT attempt to provide deep empathy; flag it for the human agent to perform a 'Human Empathy Bypass'.
-STRICT OUTPUT REQUIREMENT (JSON ONLY):
+        content: `You are the SymbioticCX Intelligence Core (Centaur OS). You act as a SHIELD and DRAFTER for human agents.
+PROTOCOL: ANALYZE -> REASON -> DRAFT.
+LOGISTICS CONTEXT (Order #CX-99):
+- DATABASE LOOKUP: Driver ID: B-88 (M. Chen) stuck at intersection 5th/Main due to gridlock. 
+- STATUS: 52 minutes delayed. Warehouse Node: DT-14 (Brooklyn Central).
+- LOGISTICS RULE: Any delay > 30 mins triggers a Redline state.
+STRICT RESPONSE FORMAT (JSON ONLY):
 {
-  "thought": "Internal Logistics Analysis: [Summarize warehouse/driver status]. IDENTIFY: Human must add personal apology and authorize high-value recovery.",
-  "draft": "A functional confirmation of the logistics delay and standard small compensation.",
+  "thought": "Internal Reasoning: [Analyze logistics failure/emotion level]. IDENTIFY: Human empathy gap detected. ACTION: Suggest manual refund or courier reroute.",
+  "draft": "A professional but functional acknowledgement. Keep it brief to allow human personalization.",
   "sentiment_score": number (0-100),
   "confidence_score": number (0-100),
-  "suggested_actions": ["Manual Reroute", "Full Refund", "Priority Delivery"] (Select 3 relevant fragments)
+  "suggested_actions": ["Priority Reroute", "Full Refund", "Manual Credit"]
 }
 ROI DIRECTIVE:
-Prioritize speed. Low sentiment (<40) requires 'High Empathy Intervention'.`
+Low Sentiment (<40) signals 'High-Risk Churn'. In these cases, provide a functional draft but EXPLICITLY flag the need for human empathy bypass in your 'thought' field.`
       },
-      ...history.slice(-10).map(m => ({
+      ...history.slice(-8).map(m => ({
         role: m.role,
         content: m.content
       })),
