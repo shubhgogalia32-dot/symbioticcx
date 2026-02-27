@@ -35,7 +35,7 @@ export function AnalyticsDashboard() {
   const stats = [
     { label: 'Total Sessions', value: data.totalSessions, icon: Zap, color: 'text-primary' },
     { label: 'Avg Empathy Delta', value: `+${Math.round(data.avgEmpathyDelta)}%`, icon: Heart, color: 'text-emerald-500' },
-    { label: 'Churn Revenue Saved', value: `$${(data.churnRevenueSaved / 1000).toFixed(0)}k`, icon: DollarSign, color: 'text-primary' },
+    { label: 'Churn Revenue Saved', value: `${(data.churnRevenueSaved / 1000).toFixed(0)}k`, icon: DollarSign, color: 'text-primary' },
     { label: 'Human Value Index', value: data.totalHumanValue, icon: ShieldCheck, color: 'text-primary' },
   ];
   const safetyNetData = [
@@ -68,8 +68,8 @@ export function AnalyticsDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="w-full h-[300px] min-h-[300px] relative">
-              <ResponsiveContainer width="100%" height="100%">
+            <div className="w-full h-64 min-h-[250px] relative">
+              <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                 <PieChart>
                   <Pie
                     data={safetyNetData}
@@ -106,8 +106,8 @@ export function AnalyticsDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="w-full h-[300px] min-h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
+            <div className="w-full h-64 min-h-[250px]">
+              <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                 <LineChart data={data.empathyTrend.slice(-10)} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
                   <XAxis 
