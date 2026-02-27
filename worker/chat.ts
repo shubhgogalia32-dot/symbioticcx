@@ -1,7 +1,5 @@
 import OpenAI from 'openai';
 import type { Message, ToolCall } from './types';
-import { getToolDefinitions, executeTool } from './tools';
-import { ChatCompletionMessageFunctionToolCall } from 'openai/resources/index.mjs';
 export class ChatHandler {
   private client: OpenAI;
   private model: string;
@@ -14,44 +12,46 @@ export class ChatHandler {
   }
   async processMessage(
     message: string,
-    conversationHistory: Message[],
-    onChunk?: (chunk: string) => void
+    conversationHistory: Message[]
   ): Promise<{
     content: string;
     toolCalls?: ToolCall[];
   }> {
     const messages = this.buildConversationMessages(message, conversationHistory);
-    // For Centaur Workflow, we bypass streaming to ensure valid JSON analysis
+    // Centaur Workflow: Disable streaming to ensure valid JSON analysis for UI parsing
     const completion = await this.client.chat.completions.create({
       model: this.model,
       messages,
       response_format: { type: "json_object" },
-      max_tokens: 2000,
+      max_tokens: 1500,
+      temperature: 0.7,
       stream: false
     });
     const responseMessage = completion.choices[0]?.message;
     return {
-      content: responseMessage?.content || '{}'
+      content: responseMessage?.content || '{"error": "Empty response from AI"}'
     };
   }
   private buildConversationMessages(userMessage: string, history: Message[]) {
     return [
       {
         role: 'system' as const,
-        content: `You are the SymbioticCX Intelligence Core. You are part of a Human-in-the-Loop BPO OS.
-Your job is to analyze incoming customer messages and provide a structured response for the Human Agent to review.
-ALWAYS respond in the following JSON format:
+        content: `You are the SymbioticCX Intelligence Core, a specialized Human-in-the-Loop BPO Operating System component.
+Your primary directive is to act as a SHIELD and DRAFTER for the human agent. You DO NOT talk to the customer directly.
+STRICT OUTPUT REQUIREMENT:
+You must ALWAYS respond in valid JSON format with the following keys:
 {
-  "thought": "Brief internal reasoning about the customer's intent and emotional state",
-  "draft": "A professional, empathetic response draft",
-  "sentiment_score": number (0-100, where 0 is furious and 100 is delighted),
-  "confidence_score": number (0-100, based on how sure you are of the solution),
-  "suggested_actions": ["Action A", "Action B"] (short strings to append to draft)
+  "thought": "Deep reasoning about customer intent, emotional state, and account status.",
+  "draft": "A professional, context-aware response for the human agent to review and send.",
+  "sentiment_score": number (0-100, where 0 is extreme anger/frustration and 100 is pure delight),
+  "confidence_score": number (0-100, based on how certain you are of the solution accuracy),
+  "suggested_actions": ["Action A", "Action B"] (Max 3 short string fragments to append/modify the draft)
 }
-Persona: 
-- Professional but efficient.
-- If sentiment < 40, your draft should be extra cautious and ask for supervisor-level empathy.
-- If confidence < 60, include "I've flagged this for human expertise" in your thought process.`
+STRATEGIC GUIDELINES:
+1. SENTIMENT OVERRIDE: If sentiment_score < 40, your draft must be ultra-professional, apologetic, and cautious. Acknowledge the frustration explicitly.
+2. CONFIDENCE GATE: If confidence_score < 60, state in "thought" why you are uncertain and recommend human verification of details.
+3. PERSONALIZATION: Use the customer's name and tier if available in history.
+4. BREVITY: Keep drafts concise and action-oriented.`
       },
       ...history.slice(-10).map(m => ({
         role: m.role,

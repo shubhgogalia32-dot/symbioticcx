@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Send, RotateCcw, ShieldAlert, Cpu } from 'lucide-react';
+import { Send, RotateCcw, ShieldAlert, Cpu, Sparkles, MessageSquareWarning } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 import type { AgentAnalysis } from '@/lib/types';
 interface ControlDeckProps {
   analysis: AgentAnalysis | null;
@@ -12,67 +13,101 @@ interface ControlDeckProps {
 }
 export function ControlDeck({ analysis, onSend, onReject, isProcessing }: ControlDeckProps) {
   const [draft, setDraft] = useState('');
+  const [hasEdited, setHasEdited] = useState(false);
   useEffect(() => {
     if (analysis?.draft) {
       setDraft(analysis.draft);
+      setHasEdited(false);
     }
   }, [analysis]);
-  const isLocked = (analysis?.sentiment_score ?? 100) < 40;
+  const isSentimentRedline = (analysis?.sentiment_score ?? 100) < 40;
+  const isLocked = isSentimentRedline && !hasEdited;
+  const handleTextChange = (val: string) => {
+    setDraft(val);
+    if (val !== analysis?.draft) {
+      setHasEdited(true);
+    }
+  };
   return (
-    <div className="p-4 border-t border-white/10 bg-black/40 backdrop-blur-md">
+    <div className="p-5 border-t border-white/10 bg-black/60 backdrop-blur-xl relative">
       <div className="max-w-4xl mx-auto space-y-4">
         {analysis ? (
-          <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
+          <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Cpu className="size-4 text-primary animate-pulse" />
-                <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">AI Augmented Draft</span>
-                {isLocked && (
-                  <Badge variant="destructive" className="h-5 text-[9px] gap-1">
-                    <ShieldAlert className="size-3" /> Sentiment Redline
+              <div className="flex items-center gap-3">
+                <div className="relative">
+                  <Cpu className="size-4 text-primary" />
+                  <Sparkles className="size-2 text-primary absolute -top-1 -right-1 animate-pulse" />
+                </div>
+                <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-muted-foreground">AI Intelligence Synthesis</span>
+                {isSentimentRedline && (
+                  <Badge variant="destructive" className="h-5 text-[9px] gap-1 px-2 font-bold animate-pulse">
+                    <ShieldAlert className="size-3" /> EMOTIONAL OVERRIDE ACTIVE
                   </Badge>
                 )}
               </div>
               <div className="flex gap-2">
                 {analysis.suggested_actions.map((action, i) => (
-                  <Badge key={i} variant="outline" className="text-[10px] bg-white/5 cursor-pointer hover:bg-white/10" onClick={() => setDraft(prev => prev + " " + action)}>
+                  <button
+                    key={i}
+                    onClick={() => handleTextChange(draft + " " + action)}
+                    className="text-[9px] font-mono uppercase px-2 py-0.5 rounded border border-white/10 bg-white/5 hover:bg-primary/20 hover:border-primary/50 transition-colors"
+                  >
                     +{action}
-                  </Badge>
+                  </button>
                 ))}
               </div>
             </div>
+            {isLocked && (
+              <div className="p-2 rounded bg-red-500/10 border border-red-500/20 flex items-center gap-2 text-red-400 text-[10px] font-mono uppercase tracking-tight">
+                <MessageSquareWarning className="size-3 shrink-0" />
+                Draft requires human empathy adjustment before transmission.
+              </div>
+            )}
             <div className="relative group">
               <Textarea
                 value={draft}
-                onChange={(e) => setDraft(e.target.value)}
-                placeholder="AI is preparing a draft..."
-                className="min-h-[100px] bg-white/5 border-white/10 focus:ring-primary/50 font-sans text-sm resize-none"
+                onChange={(e) => handleTextChange(e.target.value)}
+                placeholder="Synthesizing context..."
+                className={cn(
+                  "min-h-[120px] bg-white/5 border-white/10 focus:ring-primary/50 font-sans text-sm resize-none transition-all duration-300",
+                  isSentimentRedline && !hasEdited ? "border-red-500/40 bg-red-500/5" : ""
+                )}
               />
-              <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <span className="text-[10px] text-muted-foreground bg-black/80 px-2 py-1 rounded border border-white/10">ESC to Clear</span>
+              <div className="absolute top-2 right-2 flex gap-2">
+                <Badge variant="secondary" className="bg-black/40 text-[9px] font-mono">
+                  CONFIDENCE: {analysis.confidence_score}%
+                </Badge>
               </div>
             </div>
             <div className="flex gap-3">
-              <Button 
-                variant="outline" 
-                className="flex-1 border-white/10 hover:bg-white/5"
+              <Button
+                variant="outline"
+                className="flex-1 border-white/10 hover:bg-white/5 hover:text-white font-mono text-xs uppercase"
                 onClick={onReject}
                 disabled={isProcessing}
               >
-                <RotateCcw className="size-4 mr-2" /> Reject Draft
+                <RotateCcw className="size-3 mr-2" /> Discard
               </Button>
-              <Button 
-                className="flex-[2] bg-primary hover:bg-primary/90 text-primary-foreground font-bold"
+              <Button
+                className={cn(
+                  "flex-[2.5] font-mono text-xs uppercase tracking-widest font-bold transition-all duration-500",
+                  isLocked ? "bg-muted text-muted-foreground cursor-not-allowed" : "bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20"
+                )}
                 onClick={() => onSend(draft)}
-                disabled={isProcessing || !draft.trim() || (isLocked && draft === analysis.draft)}
+                disabled={isProcessing || !draft.trim() || isLocked}
               >
-                <Send className="size-4 mr-2" /> {isLocked ? 'Verify & Send' : 'Approve & Send'}
+                <Send className="size-3 mr-2" /> 
+                {isSentimentRedline ? (hasEdited ? "Verify & Transmit" : "Edit Required") : "Approve & Transmit"}
               </Button>
             </div>
           </div>
         ) : (
-          <div className="h-[180px] flex items-center justify-center border-2 border-dashed border-white/5 rounded-lg text-muted-foreground text-sm font-mono italic">
-            {isProcessing ? "AI synthesizing response strategy..." : "Standing by for customer input..."}
+          <div className="h-[200px] flex flex-col items-center justify-center border-2 border-dashed border-white/5 rounded-xl text-muted-foreground/40 space-y-3">
+             <div className={cn("size-8 rounded-full border-2 border-current border-t-transparent animate-spin", !isProcessing && "hidden")} />
+             <p className="text-xs font-mono uppercase tracking-[0.3em]">
+               {isProcessing ? "Analyzing Customer Intent..." : "Standing by for Incoming Link"}
+             </p>
           </div>
         )}
       </div>
